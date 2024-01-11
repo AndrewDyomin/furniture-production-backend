@@ -4,7 +4,7 @@ const cors = require("cors");
 const path = require("node:path");
 require("./db");
 
-// const ordersRouter = require("./routes/api/orders");
+const ordersRouter = require("./routes/api/orders");
 const authRoutes = require("./routes/api/auth");
 const usersRoutes = require("./routes/api/users");
 const isAuth = require("./middlewares/isAuth");
@@ -18,7 +18,7 @@ app.use(logger(formatsLogger));
 app.use(cors());
 app.use(express.json());
 
-// app.use("/orders", isAuth, ordersRouter);
+app.use("/orders", isAuth, ordersRouter);
 app.use("/auth", authRoutes);
 app.use("/users", usersRoutes);
 
