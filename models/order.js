@@ -13,6 +13,9 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Set name for item'],
     },
+    fabric: {
+      type: String,
+    },
     description: {
       type: String,
     },
