@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-async function getMebTownOrders() {
+async function getMebTownOrders(req, res, next) {
 
     let orders = {};
 
@@ -8,6 +8,7 @@ async function getMebTownOrders() {
         await axios.get('https://script.google.com/macros/s/AKfycbwcORXRXgNA-k1kgMaFBDciWHmNsOTEZp0rYehduCMig-krkRABqrTvlH66zJCfZOHzRA/exec')
         .then((response) => {
             orders = response.data;
+            res.status(200).send(orders);
         });
         
     } catch(err) {
@@ -16,12 +17,5 @@ async function getMebTownOrders() {
 
     return orders;
 };
-   
-async function getAllOrders(req, res, next) {
 
-    const orders = await getMebTownOrders();
-
-    res.status(200).send(orders);
-};
-
-module.exports = { getAllOrders };
+module.exports = { getMebTownOrders };
