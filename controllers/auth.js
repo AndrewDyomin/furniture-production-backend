@@ -13,10 +13,10 @@ async function register(req, res, next) {
       .send(response.error.details.map((err) => err.message).join(", "));
   }
 
-  const { name, email, password } = req.body;
+  const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email }).exec();
+    let user = await User.findOne({ email }).exec();
 
     if (user !== null) {
       return res.status(409).json({ message: "Email in use" });
@@ -25,11 +25,20 @@ async function register(req, res, next) {
     const passwordHash = await bcrypt.hash(password, 10);
     const avatarURL = gravatar.url(email);
 
-    const newUser = await User.create({ name, email, password: passwordHash, avatarURL });
+    const newUser = await User.create({ email, password: passwordHash, avatarURL });
+    user = await User.findOne({ email }).exec();
+
+    const token = jwt.sign(
+      { id: user._id, name: user.name },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    await User.findByIdAndUpdate(user._id, { token }).exec();
 
     res
       .status(201)
-      .send({ user: { email: newUser.email, password: newUser.password } });
+      .send({ data: { email: newUser.email, token } });
   } catch (error) {
     next(error);
   }
@@ -72,7 +81,7 @@ async function login(req, res, next) {
 
     res
       .status(200)
-      .send({ token, user: { email: user.email, password: user.password } });
+      .send({ token, user: { email: user.email } });
   } catch (error) {
     next(error);
   }
