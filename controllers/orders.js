@@ -1,4 +1,5 @@
 const axios = require('axios');
+const { v4: uuidv4 } = require('uuid');
 
 async function getMebTownOrders() {
 
@@ -90,6 +91,10 @@ async function getAllOrders(req, res, next) {
         }
         return 0;
       });
+
+    allOrdersArray.map((order) => {
+        order.id = uuidv4();
+    });
 
     res.status(200).json({ allOrdersArray });
 };
