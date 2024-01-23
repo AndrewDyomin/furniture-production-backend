@@ -93,7 +93,7 @@ async function getAllOrders(req, res, next) {
       });
 
     allOrdersArray.map((order) => {
-        order.id = uuidv4();
+        order._id = uuidv4();
     });
 
     res.status(200).json({ allOrdersArray });
