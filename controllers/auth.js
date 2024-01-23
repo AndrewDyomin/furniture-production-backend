@@ -38,7 +38,7 @@ async function register(req, res, next) {
 
     res
       .status(201)
-      .send({ token });
+      .send({ token, email: user.email });
   } catch (error) {
     next(error);
   }
