@@ -38,7 +38,7 @@ async function register(req, res, next) {
 
     res
       .status(201)
-      .send({ token, email: user.email });
+      .send({ token, user: { email: user.email } });
   } catch (error) {
     next(error);
   }
@@ -100,11 +100,11 @@ async function logout(req, res, next) {
 }
 
 async function current(req, res, next) {
-  const { email, subscription } = req.user.user;
+  const { email } = req.user.user;
 
   res
   .status(200)
-  .send({ email, subscription });
+  .send({ user: { email } });
 }
 
 module.exports = { register, login, logout, current };
