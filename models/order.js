@@ -40,7 +40,7 @@ const orderSchema = new mongoose.Schema(
     dateOfOrder: {
       type: String,
     },
-    adresss: {
+    adress: {
       type: String,
     },
     additional: {

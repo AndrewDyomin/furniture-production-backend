@@ -23,6 +23,24 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null,
   },
+  access: {
+      mebTown: {
+        type: Boolean,
+        default: false,
+      },
+      homeIs: {
+        type: Boolean,
+        default: false,
+      },
+      millini: {
+        type: Boolean,
+        default: false,
+      },
+      other: {
+        type: Boolean,
+        default: false,
+      }
+  },
 });
 
 module.exports = mongoose.model("User", userSchema);

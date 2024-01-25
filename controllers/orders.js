@@ -1,73 +1,87 @@
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
+require("dotenv").config();
 
-async function getMebTownOrders() {
+
+async function getMebTownOrders(user) {
 
     let orders = [];
-
-    try {
-        await axios.get('https://script.google.com/macros/s/AKfycbwcORXRXgNA-k1kgMaFBDciWHmNsOTEZp0rYehduCMig-krkRABqrTvlH66zJCfZOHzRA/exec')
-        .then((response) => {
-            orders = response.data.orders;
-            return(orders);
-        });
-        
-    } catch(err) {
-        console.log(err)
+    const { access } = user.user;
+    
+    if (access.mebTown) {
+        try {
+            await axios.get(process.env.MEBTOWN_LINK)
+            .then((response) => {
+                orders = response.data.orders;
+                return(orders);
+            });
+            
+        } catch(err) {
+            console.log(err)
+        }
     }
 
     return orders;
 };
 
-async function getHomeIsOrders() {
+async function getHomeIsOrders(user) {
 
     let orders = [];
-
-    try {
-        await axios.get('https://script.google.com/macros/s/AKfycbziRFn4n9g5Wo_zolCnERQyWq-Je9cIdNEcZWdkAXHMP6gKS8-hTadQKy4VKOtVEZUl/exec')
-        .then((response) => {
-            orders = response.data.orders;
-            return(orders);
-        });
-        
-    } catch(err) {
-        console.log(err)
+    const { access } = user.user;
+    
+    if (access.homeIs) {
+        try {
+            await axios.get(process.env.HOMEIS_LINK)
+            .then((response) => {
+                orders = response.data.orders;
+                return(orders);
+            });
+            
+        } catch(err) {
+            console.log(err)
+        }
     }
 
     return orders;
 };
 
-async function getMilliniOrders() {
+async function getMilliniOrders(user) {
     
     let orders = [];
-
-    try {
-        await axios.get('https://script.google.com/macros/s/AKfycbw_jmQzhpuKhJojM4smG1_sib9paTgJfiIPEJuDaTzxELnCdQpmVdeafWgXX9L16Ufu/exec')
-        .then((response) => {
-            orders = response.data.orders;
-            return(orders);
-        });
-        
-    } catch(err) {
-        console.log(err)
+    const { access } = user.user;
+    
+    if (access.millini) {
+        try {
+            await axios.get(process.env.MILLINI_LINK)
+            .then((response) => {
+                orders = response.data.orders;
+                return(orders);
+            });
+            
+        } catch(err) {
+            console.log(err)
+        }
     }
 
     return orders;
 };
 
-async function getOtherOrders() {
+async function getOtherOrders(user) {
     
     let orders = [];
-
-    try {
-        await axios.get('https://script.google.com/macros/s/AKfycbzdAGJlrqjaqHIFC3x8Y8ZixzuZH8lARPOfzCl4iv8fWIUBdfztgK3nCWLqedfxcQfl3Q/exec')
-        .then((response) => {
-            orders = response.data.orders;
-            return(orders);
-        });
-        
-    } catch(err) {
-        console.log(err)
+    const { access } = user.user;
+    
+    if (access.other) {
+        try {
+            await axios.get(process.env.OTHER_LINK)
+            .then((response) => {
+                orders = response.data.orders;
+                return(orders);
+            });
+            
+        } catch(err) {
+            console.log(err)
+        }
     }
 
     return orders;
@@ -75,10 +89,10 @@ async function getOtherOrders() {
 
 async function getAllOrders(req, res, next) {
 
-    const mebTownOrders = await getMebTownOrders();
-    const homeIsOrders = await getHomeIsOrders();
-    const milliniOrders = await getMilliniOrders();
-    const otherOrders = await getOtherOrders();
+    const mebTownOrders = await getMebTownOrders(req.user);
+    const homeIsOrders = await getHomeIsOrders(req.user);
+    const milliniOrders = await getMilliniOrders(req.user);
+    const otherOrders = await getOtherOrders(req.user);
 
     const allOrdersArray = mebTownOrders.concat(homeIsOrders, milliniOrders, otherOrders);
 
