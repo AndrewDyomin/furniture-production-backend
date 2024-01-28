@@ -100,11 +100,15 @@ async function logout(req, res, next) {
 }
 
 async function current(req, res, next) {
-  const { email } = req.user.user;
+  try {
+  const { email, subscription } = req.user.user;
 
   res
   .status(200)
-  .send({ user: { email } });
+  .send({ user: { email, subscription } });
+  } catch(error) {
+    next(error);
+  }
 }
 
 module.exports = { register, login, logout, current };
