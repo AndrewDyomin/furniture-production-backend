@@ -41,13 +41,24 @@ async function remove(req, res, next) {
   }
 };
 
-async function get(req, res, next) {
+async function getOne(req, res, next) {
   const { id } = req.body;
 
   try {
 
   const collection = await Collection.findById(id).exec();
   res.status(200).send({ collection });
+
+  } catch(error) {
+    next(error)
+  }
+};
+
+async function getAll(req, res, next) {
+  try {
+
+  const array = await Collection.find({}).exec();
+  res.status(200).send({ array });
 
   } catch(error) {
     next(error)
@@ -75,4 +86,4 @@ async function update(req, res, next) {
     }
   };
 
-module.exports = { add, remove, get, update };
+module.exports = { add, remove, getOne, getAll, update };
