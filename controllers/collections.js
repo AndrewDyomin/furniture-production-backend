@@ -78,7 +78,7 @@ async function update(req, res, next) {
     try {
 
       const { id, group, name, dimensions, subscription, images, components } = req.body;
-      const newCollection = await Collection.findByIdAndUpdate(id, { group, name, dimensions, subscription, images, components }, { new: true }).exec();
+      const newCollection = await Collection.findByIdAndUpdate(id, { group, name, dimensions, subscription, basePrice, images, components }, { new: true }).exec();
 
       res.status(200).send(newCollection);
     } catch (error) {

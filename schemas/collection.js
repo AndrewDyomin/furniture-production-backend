@@ -10,6 +10,7 @@ const collectionSchema = Joi.object({
       depth: Joi.number().required(),
     }),
     subscription: Joi.string(),
+    basePrice: Joi.number().required(),
     images: Joi.array().items(Joi.string()),
     components: Joi.array().items(Joi.string()),
 });
