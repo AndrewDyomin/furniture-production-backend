@@ -27,8 +27,8 @@ const collectionSchema = new mongoose.Schema({
     default: null,
   },
   basePrice: {
-    tupe: Number,
-    required: true,
+    type: Number,
+    required: true
   },
   images: [{
     type: String,
