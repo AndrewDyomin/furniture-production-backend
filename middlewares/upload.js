@@ -22,7 +22,7 @@ const upload = multer({ storage });
 
 async function imgbbApi(req, res, next) {
   try {
-    console.log(req)
+    console.log(req.body)
     const files = req.body.files;
     const uploadedUrls = [];
 
