@@ -34,7 +34,7 @@ async function imgbbApi(req, res, next) {
         }});
       uploadedUrls.push(response.data.data.url);
     }
-      req.body.images = [ ...uploadedUrls ];
+      req.body.images = [...uploadedUrls];
   } catch (error) {
       console.error('Upload error ImgBB:', error);
       throw error;
