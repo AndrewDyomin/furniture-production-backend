@@ -2,7 +2,7 @@ const express = require("express");
 
 const UsersController = require("../../controllers/users");
 const isAuth = require("../../middlewares/isAuth")
-const upload = require("../../middlewares/upload");
+const { upload } = require("../../middlewares/upload");
 const isValidAvatar = require("../../middlewares/isValidAvatar")
 
 const router = express.Router();
