@@ -26,12 +26,11 @@ async function imgbbApi(req, res, next) {
     const uploadedUrls = [];
 
     for (const file of files) {
-      const formData = new FormData();
-      formData.append('image', file.data);
-      const response = await axios.post('https://api.imgbb.com/1/upload?key=IMGBB_API_KEY', formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data'
-        }});
+      const response = await axios.post('https://api.imgbb.com/1/upload?key=IMGBB_API_KEY', file.buffer, {
+          headers: {
+              'Content-Type': file.mimetype
+          }
+      });
       uploadedUrls.push(response.data.data.url);
     }
       req.body.images = [...uploadedUrls];
