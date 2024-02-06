@@ -7,27 +7,32 @@ const fs = require('node:fs');
 const IMGBB_API_KEY = process.env.IMGBB_API_KEY;
 
 async function add(req, res, next) {
-  const files = req.file;
-  const formData = new FormData();
+  const files = req.files;
+  let imageLinks = [];
 
   try {
-    formData.append('image', fs.createReadStream(files.path));
+    for (const file of files) {
 
-    const response = await axios.post(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, formData, {
-      headers: formData.getHeaders()
-    });
+      const formData = new FormData();
+      formData.append('image', fs.createReadStream(file.path));
 
-    req.body.images = [response.data.data.url];
+      const response = await axios.post(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, formData, {
+        headers: formData.getHeaders()
+      });
 
-    fs.unlink(files.path, (err) => {
-      if (err) {
-        console.error('Error', err);
-        return;
-      }});
+      imageLinks.push(response.data.data.url);
 
+      fs.unlink(file.path, (err) => {
+        if (err) {
+          console.error('Error', err);
+          return;
+        }});
+
+    }
   } catch(error) {
-    console.log(error)
-  }
+      console.log(error)
+    }
+  req.body.images = imageLinks;
 
   const response = collectionSchema.validate(req.body, { abortEarly: false });
 
