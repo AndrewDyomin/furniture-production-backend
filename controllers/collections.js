@@ -98,24 +98,29 @@ async function getAll(req, res, next) {
 };
 
 async function update(req, res, next) {
-  const response = collectionSchema.validate(req.body, { abortEarly: false });
 
-  if (typeof response.error !== "undefined") {
-    return res
-    .status(400)
-    .send(response.error.details.map((err) => err.message).join(", "));
+  try {
+
+    const { id, name, dimensions, subscription, basePrice, components } = req.body;
+    const updatedCollection = await Collection.findByIdAndUpdate(id, { name, dimensions, subscription, basePrice, components }, { new: true }).exec();
+
+    res.status(200).send(updatedCollection);
+  } catch (error) {
+    next(error);
   }
+};
 
+async function updateImages(req, res, next) {
 
-    try {
+  try {
 
-      const { id, group, name, dimensions, subscription, images, components } = req.body;
-      const newCollection = await Collection.findByIdAndUpdate(id, { group, name, dimensions, subscription, basePrice, images, components }, { new: true }).exec();
+    const { id, images } = req.body;
+    const updatedCollection = await Collection.findByIdAndUpdate(id, { images }, { new: true }).exec();
 
-      res.status(200).send(newCollection);
-    } catch (error) {
-      next(error);
-    }
-  };
+    res.status(200).send(updatedCollection);
+  } catch (error) {
+    next(error);
+  }
+};
 
 module.exports = { add, remove, getOne, getAll, update };
