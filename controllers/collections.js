@@ -63,10 +63,10 @@ async function add(req, res, next) {
 };
 
 async function remove(req, res, next) {
-    const id = req.id;
+    const { id } = req.body;
   try {
     await Collection.findByIdAndDelete(id)
-    console.log(req.id);
+
     res.status(200).json({ message: "collection was deleted" });
   } catch (error) {
     next(error);
