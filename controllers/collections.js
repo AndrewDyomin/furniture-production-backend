@@ -66,7 +66,7 @@ async function remove(req, res, next) {
     const { id } = req.body;
   try {
     await Collection.findByIdAndDelete(id)
-    console.log(id);
+    console.log(req.body);
     res.status(200).json({ message: "collection was deleted" });
   } catch (error) {
     next(error);
