@@ -2,7 +2,6 @@ const express = require("express");
 const { upload } = require("../../middlewares/upload");
 const CollectionsController = require("../../controllers/collections");
 const isAuth = require("../../middlewares/isAuth");
-const { imgbbApi } = require("../../middlewares/upload");
 
 const router = express.Router();
 const jsonParser = express.json();
