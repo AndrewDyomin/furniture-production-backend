@@ -100,7 +100,7 @@ async function getAll(req, res, next) {
 async function update(req, res, next) {
 
   try {
-
+    console.log(req.body);
     const { id, name, dimensions, subscription, basePrice, components } = req.body;
     const updatedCollection = await Collection.findByIdAndUpdate(id, { name, dimensions, subscription, basePrice, components }, { new: true }).exec();
 
