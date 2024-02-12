@@ -20,33 +20,4 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-async function imgbbApi(req, res, next) {
-  try {
-    const files = req.file.filename;
-    const uploadedUrls = [];
-    console.log(files, '1')
-
-    if (files.isArray()) {
-    for (const file of files) {
-      const response = await axios.post('https://api.imgbb.com/1/upload?key=IMGBB_API_KEY', file.buffer, {
-          headers: {
-              'Content-Type': file.mimetype
-          }
-      });
-      uploadedUrls.push(response.data.data.url);
-    }} else {
-      const response = await axios.post('https://api.imgbb.com/1/upload?key=IMGBB_API_KEY', files.buffer, {
-          headers: {
-              'Content-Type': files.mimetype
-          }
-      });
-      uploadedUrls.push(response.data.data.url);
-    }
-      req.body.images = [...uploadedUrls];
-  } catch (error) {
-      console.error('Upload error ImgBB:', error);
-      throw error;
-  }
-}
-
-module.exports = { upload, imgbbApi }
+module.exports = { upload }

@@ -123,4 +123,4 @@ async function updateImages(req, res, next) {
   }
 };
 
-module.exports = { add, remove, getOne, getAll, update };
+module.exports = { add, remove, getOne, getAll, update, updateImages };
