@@ -10,11 +10,11 @@ const userSchema = new mongoose.Schema({
     required: [true, "Email is required"],
     unique: true,
   },
-  subscription: {
+  description: {
     type: String,
     enum: ["administrator", "manager", "guest"],
     default: "guest",
-    required: [true, "Subscription is required"],
+    required: [true, "Description is required"],
   },
   token: {
     type: String,

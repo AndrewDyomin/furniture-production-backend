@@ -101,11 +101,11 @@ async function logout(req, res, next) {
 
 async function current(req, res, next) {
   try {
-  const { email, subscription } = req.user.user;
+  const { email, description } = req.user.user;
 
   res
   .status(200)
-  .send({ user: { email, subscription } });
+  .send({ user: { email, description } });
   } catch(error) {
     next(error);
   }

@@ -5,7 +5,7 @@ const componentSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
-  subscription: {
+  description: {
     type: String,
     default: null,
   },

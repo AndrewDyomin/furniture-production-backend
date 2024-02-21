@@ -57,8 +57,8 @@ async function update(req, res, next) {
 
   try {
     
-    const { id, name, subscription, price, currency, units } = req.body;
-    const updatedComponent = await Component.findByIdAndUpdate(id, { name, subscription, price, currency, units }, { new: true }).exec();
+    const { id, name, description, price, currency, units } = req.body;
+    const updatedComponent = await Component.findByIdAndUpdate(id, { name, description, price, currency, units }, { new: true }).exec();
 
     res.status(200).send(updatedComponent);
   } catch (error) {

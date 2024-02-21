@@ -33,7 +33,7 @@ const collectionSchema = new mongoose.Schema({
         required: true 
     },
   },
-  subscription: {
+  description: {
     type: String,
     default: null,
   },
