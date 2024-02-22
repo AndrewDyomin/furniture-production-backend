@@ -1,6 +1,7 @@
 const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 require("dotenv").config();
+const Order = require("../models/order");
 
 
 async function getMebTownOrders(user) {
@@ -113,4 +114,87 @@ async function getAllOrders(req, res, next) {
     res.status(200).json({ allOrdersArray });
 };
 
-module.exports = { getAllOrders };
+async function addOrder(req, res, next) {
+
+    const { number } = req.body;
+
+    try {
+        let order = await Order.findOne({ number }).exec();
+    
+        if (order !== null) {
+          return res.status(409).json({ message: "Number in use" });
+        }
+
+    order = req.body;
+
+    await Order.create(order);
+ 
+    res.status(200).json({ message: "Order created" });
+
+  } catch (error) {
+    next(error);
+  }
+
+};
+
+async function updateOrder(req, res, next) {
+
+    try {
+    
+        const { 
+            id,
+            group,
+            size,
+            name,
+            fabric, 
+            description,
+            base,
+            deliveryDate, 
+            innerPrice,
+            number,
+            dealer,
+            deadline,
+            dateOfOrder,
+            adress,
+            additional,
+            rest,
+            plannedDeliveryDate
+        } = req.body;
+        const updatedOrder = await Order.findByIdAndUpdate(id, {
+            group,
+            size,
+            name,
+            fabric, 
+            description,
+            base,
+            deliveryDate, 
+            innerPrice,
+            number,
+            dealer,
+            deadline,
+            dateOfOrder,
+            adress,
+            additional,
+            rest,
+            plannedDeliveryDate
+        }, { new: true }).exec();
+    
+        res.status(200).send(updatedOrder);
+      } catch (error) {
+        next(error);
+      }
+};
+
+async function deleteOrder(req, res, next) {
+
+    const { id } = req.body;
+    try {
+      await Order.findByIdAndDelete(id)
+  
+      res.status(200).json({ message: "Order was deleted" });
+    } catch (error) {
+      next(error);
+    }
+};
+
+module.exports = { getAllOrders, addOrder, updateOrder, deleteOrder };
