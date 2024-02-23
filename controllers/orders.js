@@ -118,6 +118,8 @@ async function addOrder(req, res, next) {
 
     const { number } = req.body;
 
+    console.log(req.body);
+
     try {
         let order = await Order.findOne({ number }).exec();
     
