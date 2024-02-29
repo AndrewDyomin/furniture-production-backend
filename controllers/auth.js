@@ -13,7 +13,7 @@ async function register(req, res, next) {
       .send(response.error.details.map((err) => err.message).join(", "));
   }
 
-  const { email, password } = req.body;
+  const { name, email, password } = req.body;
 
   try {
     let user = await User.findOne({ email }).exec();
@@ -25,7 +25,7 @@ async function register(req, res, next) {
     const passwordHash = await bcrypt.hash(password, 10);
     const avatarURL = gravatar.url(email);
 
-    const newUser = await User.create({ email, password: passwordHash, avatarURL });
+    const newUser = await User.create({ name, email, password: passwordHash, avatarURL });
     user = await User.findOne({ email }).exec();
 
     const token = jwt.sign(
@@ -45,13 +45,7 @@ async function register(req, res, next) {
 }
 
 async function login(req, res, next) {
-  const response = userSchema.validate(req.body, { abortEarly: false });
 
-  if (typeof response.error !== "undefined") {
-    return res
-      .status(400)
-      .send(response.error.details.map((err) => err.message).join(", "));
-  }
   const { email, password } = req.body;
 
   try {
@@ -66,7 +60,7 @@ async function login(req, res, next) {
 
     const isMatch = await bcrypt.compare(password, user.password);
 
-    if (isMatch === false) {
+    if (!isMatch) {
 
       return res.status(401).json({ message: "Email or password is wrong" });
     }
