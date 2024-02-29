@@ -88,14 +88,39 @@ async function getOtherOrders(user) {
     return orders;
 };
 
+async function getDataBaseOrders(user) {
+    
+    let orders = [];
+    const { description, name } = user.user;
+    
+    try {
+        if (description === 'administrator') {
+            orders = await Order.find({}).exec();
+        } else if (description === 'manager') {
+            orders = await Order.find({ dealer: name }).exec();
+        }
+        return orders;
+    } catch (err) {
+        console.error(err);
+        return orders;
+    }
+};
+
 async function getAllOrders(req, res, next) {
+
+    try {
 
     const mebTownOrders = await getMebTownOrders(req.user);
     const homeIsOrders = await getHomeIsOrders(req.user);
     const milliniOrders = await getMilliniOrders(req.user);
     const otherOrders = await getOtherOrders(req.user);
+    const dataBaseOrders = await getDataBaseOrders(req.user);
 
-    const allOrdersArray = mebTownOrders.concat(homeIsOrders, milliniOrders, otherOrders);
+    const allOrdersArray = mebTownOrders.concat(homeIsOrders, milliniOrders, otherOrders, dataBaseOrders);
+
+    if (!allOrdersArray.length) {
+        res.status(200).send({ message: 'Orders not found' });
+    }
 
     allOrdersArray.sort((a, b) => {
         if (a.plannedDeadline > b.plannedDeadline) {
@@ -112,10 +137,17 @@ async function getAllOrders(req, res, next) {
     });
 
     res.status(200).json({ allOrdersArray });
+    } catch(err) {
+        console.log(err)
+    }
 };
 
 async function addOrder(req, res, next) {
     const { number } = req.body;
+    const user = req.user.user;
+    const today = new Date().toISOString();
+    const plannedDate = new Date(today);
+    plannedDate.setDate(plannedDate.getDate() + Number(req.body.deadline));
 
     try {
         let order = await Order.findOne({ number }).exec();
@@ -125,6 +157,10 @@ async function addOrder(req, res, next) {
         }
 
     order = req.body;
+    order.dealer = user.name;
+    order.dateOfOrder = today;
+    order.plannedDeadline = plannedDate.toISOString();
+
 
     await Order.create(order);
  

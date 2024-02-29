@@ -49,7 +49,7 @@ const orderSchema = new mongoose.Schema(
     rest: {
       type: String,
     },
-    plannedDeliveryDate: {
+    plannedDeadline: {
       type: String,
     },
   }
