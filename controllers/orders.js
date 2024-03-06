@@ -95,6 +95,7 @@ async function getSweetHomeOrders(user, client) {
         const orders = [];
 
         if (access.sweetHome) {
+            try {
             const sheets = google.sheets({ version: 'v4', auth: client });
             const response = await sheets.spreadsheets.values.get({
                 spreadsheetId: '1IGQZ1Fn3_BBGshayGMdFC6foTcGes4igYAef7c1TOQk',
@@ -127,6 +128,9 @@ async function getSweetHomeOrders(user, client) {
                 }
                 orders.push(order);
             });
+            } catch(err) {
+                console.log(err)
+            } 
         }
 
         return orders;
