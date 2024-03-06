@@ -93,44 +93,75 @@ async function getSweetHomeOrders(user, client) {
 
         const { access } = user.user;
         const orders = [];
+        // console.log(client)
 
         if (access.sweetHome) {
             try {
-            const sheets = google.sheets({ version: 'v4', auth: client });
-            const response = await sheets.spreadsheets.values.get({
-                spreadsheetId: '1IGQZ1Fn3_BBGshayGMdFC6foTcGes4igYAef7c1TOQk',
-                range: 'Лист1!A2:P',
-            });
-            const rows = response.data.values;
-            if (!rows || rows.length === 0) {
-                console.log('No data found.');
-                return;
-            }
+                const response = await axios.get('https://sheets.googleapis.com/v4/spreadsheets/1IGQZ1Fn3_BBGshayGMdFC6foTcGes4igYAef7c1TOQk', {
+                    params: {
+                        ranges: 'Лист1!A2:P',
+                        includeGridData: true,
+                    },
+                    headers: {
+                        Authorization: `Bearer ${client.credentials.access_token}`, 
+                    },
+                });
 
-            rows.forEach((row) => {
-                let order = {
-                    group: row[0],
-                    size: row[1],
-                    name: row[2],
-                    fabric: row[3],
-                    description: row[4],
-                    base: row[5],
-                    deliveryDate: row[6],
-                    innerPrice: row[7],
-                    number: row[8],
-                    dealer: row[9],
-                    deadline: row[10],
-                    dateOfOrder: row[11],
-                    adress: row[12],
-                    additional: row[13],
-                    rest: row[14],
-                    plannedDeadline: row[15],
-                }
-                orders.push(order);
-            });
-            } catch(err) {
-                console.log(err)
-            } 
+                const sheetData = response.data.sheets[0].data;
+                const rgbColor = sheetData[0].rowData[4].values[3].userEnteredFormat.backgroundColor;
+                const red = rgbColor.red ? Math.round(rgbColor.red * 255).toString(16).padStart(2, '0') : '00';
+                const green = Math.round(rgbColor.green * 255).toString(16).padStart(2, '0');
+                const blue = Math.round(rgbColor.blue * 255).toString(16).padStart(2, '0');
+
+                const hexColor = `#${red}${green}${blue}`;
+
+                console.log(hexColor);
+        
+                console.log(sheetData[0].rowData[4].values[3]); 
+        
+            } catch (error) {
+                console.error('Ошибка при получении данных:', error.message);
+            }
+            // try {
+            // const sheets = google.sheets({ version: 'v4', auth: client });
+            // const response = await sheets.spreadsheets.get({
+            //     spreadsheetId: '1IGQZ1Fn3_BBGshayGMdFC6foTcGes4igYAef7c1TOQk',
+            //     ranges: 'Лист1!A2:P',
+            //     includeGridData: true,
+            // });
+
+            // console.log(response)
+
+            // const rows = response.data.values;
+            // if (!rows || rows.length === 0) {
+            //     console.log('No data found.');
+            //     return;
+            // }
+
+            // rows.forEach((row) => {
+            //     let order = {
+            //         group: row[0],
+            //         size: row[1],
+            //         name: row[2],
+            //         fabric: row[3],
+            //         description: row[4],
+            //         base: row[5],
+            //         deliveryDate: row[6],
+            //         innerPrice: row[7],
+            //         number: row[8],
+            //         dealer: row[9],
+            //         deadline: row[10],
+            //         dateOfOrder: row[11],
+            //         adress: row[12],
+            //         additional: row[13],
+            //         rest: row[14],
+            //         plannedDeadline: row[15],
+            //     }
+            //     // orders.push(order);
+            // });
+            // } catch(err) {
+            //     console.log(err)
+            // } 
         }
 
         return orders;
