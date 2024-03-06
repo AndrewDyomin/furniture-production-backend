@@ -40,6 +40,10 @@ const userSchema = new mongoose.Schema({
       other: {
         type: Boolean,
         default: false,
+      },
+      sweetHome: {
+        type: Boolean,
+        default: false,
       }
   },
   name: {

@@ -2,6 +2,7 @@ const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 require("dotenv").config();
 const Order = require("../models/order");
+const {google} = require('googleapis');
 
 
 async function getMebTownOrders(user) {
@@ -88,6 +89,50 @@ async function getOtherOrders(user) {
     return orders;
 };
 
+async function getSweetHomeOrders(user, client) {
+
+        const { access } = user.user;
+        const orders = [];
+
+        if (access.sweetHome) {
+            const sheets = google.sheets({ version: 'v4', auth: client });
+            const response = await sheets.spreadsheets.values.get({
+                spreadsheetId: '1IGQZ1Fn3_BBGshayGMdFC6foTcGes4igYAef7c1TOQk',
+                range: 'Лист1!A2:P',
+            });
+            const rows = response.data.values;
+            if (!rows || rows.length === 0) {
+                console.log('No data found.');
+                return;
+            }
+
+            rows.forEach((row) => {
+                let order = {
+                    group: row[0],
+                    size: row[1],
+                    name: row[2],
+                    fabric: row[3],
+                    description: row[4],
+                    base: row[5],
+                    deliveryDate: row[6],
+                    innerPrice: row[7],
+                    number: row[8],
+                    dealer: row[9],
+                    deadline: row[10],
+                    dateOfOrder: row[11],
+                    adress: row[12],
+                    additional: row[13],
+                    rest: row[14],
+                    plannedDeadline: row[15],
+                }
+                orders.push(order);
+            });
+        }
+
+        return orders;
+
+};
+
 async function getDataBaseOrders(user) {
     
     let orders = [];
@@ -115,8 +160,9 @@ async function getAllOrders(req, res, next) {
     const milliniOrders = await getMilliniOrders(req.user);
     const otherOrders = await getOtherOrders(req.user);
     const dataBaseOrders = await getDataBaseOrders(req.user);
+    const sweetHomeOrders = await getSweetHomeOrders(req.user, req.sheets.client)
 
-    const allOrdersArray = mebTownOrders.concat(homeIsOrders, milliniOrders, otherOrders, dataBaseOrders);
+    const allOrdersArray = mebTownOrders.concat(homeIsOrders, milliniOrders, otherOrders, dataBaseOrders, sweetHomeOrders);
 
     if (!allOrdersArray.length) {
         res.status(200).send({ message: 'Orders not found' });
@@ -232,4 +278,4 @@ async function deleteOrder(req, res, next) {
     }
 };
 
-module.exports = { getAllOrders, addOrder, updateOrder, deleteOrder };
+module.exports = { getAllOrders, addOrder, updateOrder, deleteOrder, getSweetHomeOrders };
