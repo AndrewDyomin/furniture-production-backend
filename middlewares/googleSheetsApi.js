@@ -1,15 +1,15 @@
 require('dotenv').config();
 const { google } = require('googleapis');
-const keys = require('../tmp/misage-factory-project-7c85ed9a5fbd.json');
+
 
 function googleSheetsApi(req, res, next) {
 
     try {
 
        const client = new google.auth.JWT(
-            keys.client_email,
+            process.env.GOOGLE_CLIENT_EMAIL,
             null,
-            keys.private_key,
+            process.env.GOOGLE_PRIVATE_KEY,
             ['https://www.googleapis.com/auth/spreadsheets']
         );
 
