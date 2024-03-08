@@ -211,32 +211,56 @@ async function getAllOrders(req, res, next) {
 };
 
 async function addOrder(req, res, next) {
-    const { number } = req.body;
+    // const { number } = req.body;
     const user = req.user.user;
     const today = new Date().toISOString();
     const plannedDate = new Date(today);
     plannedDate.setDate(plannedDate.getDate() + Number(req.body.deadline));
-
-    try {
-        let order = await Order.findOne({ number }).exec();
-    
-        if (order !== null) {
-          return res.status(409).json({ message: "Number in use" });
-        }
-
-    order = req.body;
+    let spreadsheetId = '';
+    let order = req.body;
     order.dealer = user.name;
     order.dateOfOrder = today;
     order.plannedDeadline = plannedDate.toISOString();
 
+    if (user.organization === 'misazh') {
+        spreadsheetId  = process.env.MISAZH_SHEET_LINK;
+        const client = req.sheets.client;
+    }
 
-    await Order.create(order);
+    try {
+        const response = await sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: 'Лист1!A2:R',
+            valueInputOption: "RAW",
+            requestBody: { values: [
+                [`${order.group}`, `${order.name}`]
+            ] },
+        });
+        return response;
+    } catch(err) {
+        console.log(err)
+    }
+
+//     try {
+//         let order = await Order.findOne({ number }).exec();
+    
+//         if (order !== null) {
+//           return res.status(409).json({ message: "Number in use" });
+//         }
+
+//     order = req.body;
+//     order.dealer = user.name;
+//     order.dateOfOrder = today;
+//     order.plannedDeadline = plannedDate.toISOString();
+
+
+//     await Order.create(order);
  
-    res.status(200).json({ message: "Order created" });
+//     res.status(200).json({ message: "Order created" });
 
-  } catch (error) {
-    next(error);
-  }
+//   } catch (error) {
+//     next(error);
+//   }
 
 };
 

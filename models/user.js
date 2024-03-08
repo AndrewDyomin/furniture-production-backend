@@ -16,6 +16,10 @@ const userSchema = new mongoose.Schema({
     default: "guest",
     required: [true, "Description is required"],
   },
+  organization: {
+    type: String,
+    default: null,
+  },
   token: {
     type: String,
     default: null,
