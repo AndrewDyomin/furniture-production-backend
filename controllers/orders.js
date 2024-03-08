@@ -211,32 +211,58 @@ async function getAllOrders(req, res, next) {
 };
 
 async function addOrder(req, res, next) {
-    // const { number } = req.body;
+    
     const user = req.user.user;
-    const today = new Date().toISOString();
-    const plannedDate = new Date(today);
-    plannedDate.setDate(plannedDate.getDate() + Number(req.body.deadline));
+    const date = new Date();
+    const today = date.toISOString();
+    let plannedDate = date;
+    plannedDate.setDate(date.getDate() + Number(req.body.deadline));
+    const client = req.sheets.client;
+    const sheets = google.sheets({ version: 'v4', auth: client });
+    
     let spreadsheetId = '';
     let order = req.body;
     order.dealer = user.name;
     order.dateOfOrder = today;
-    order.plannedDeadline = plannedDate.toISOString();
+    order.plannedDeadline = `${plannedDate.toISOString()}`;
 
     if (user.organization === 'misazh') {
         spreadsheetId  = process.env.MISAZH_SHEET_LINK;
-        const client = req.sheets.client;
+    }
+
+    if (user.organization === 'sweethome') {
+        spreadsheetId  = process.env.SWEET_HOME_SHEET_LINK;
     }
 
     try {
-        const response = await sheets.spreadsheets.values.append({
+        await sheets.spreadsheets.values.append({
             spreadsheetId,
             range: 'Лист1!A2:R',
             valueInputOption: "RAW",
             requestBody: { values: [
-                [`${order.group}`, `${order.name}`]
+                [`${order.group}`, 
+                `${order.size}`, 
+                `${order.name}`, 
+                `${order.fabric}`, 
+                `${order.description}`, 
+                ``,
+                ``,
+                ``,
+                `${order.number}`,
+                `${order.dealer}`, 
+                `${order.deadline}`,
+                today,
+                `${order.adress}`, 
+                ``,
+                `${order.rest}`, 
+                order.plannedDeadline,
+                ``,
+                `${uuidv4()}`,
+            ]
             ] },
         });
-        return response;
+
+        res.status(200).json({ message: "Order created" });
     } catch(err) {
         console.log(err)
     }
