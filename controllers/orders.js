@@ -2,6 +2,7 @@ const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 require("dotenv").config();
 const Order = require("../models/order");
+const updateSheets = require("../helpers/updateSheets");
 const {google} = require('googleapis');
 
 
@@ -91,81 +92,66 @@ async function getOtherOrders(user) {
 
 async function getSweetHomeOrders(user, client) {
 
-        const { access } = user.user;
-        const orders = [];
-        // console.log(client)
+    const { access } = user.user;
+    const orders = [];
 
-        if (access.sweetHome) {
-            try {
-                const response = await axios.get('https://sheets.googleapis.com/v4/spreadsheets/1IGQZ1Fn3_BBGshayGMdFC6foTcGes4igYAef7c1TOQk', {
-                    params: {
-                        ranges: 'Лист1!A2:P',
-                        includeGridData: true,
-                    },
-                    headers: {
-                        Authorization: `Bearer ${client.credentials.access_token}`, 
-                    },
-                });
+    if (access.sweetHome) {
+        try {
+        const sheets = google.sheets({ version: 'v4', auth: client });
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: '1IGQZ1Fn3_BBGshayGMdFC6foTcGes4igYAef7c1TOQk',
+            range: 'Лист1!A2:R',
+        });
 
-                const sheetData = response.data.sheets[0].data;
-                const rgbColor = sheetData[0].rowData[4].values[3].userEnteredFormat.backgroundColor;
-                const red = rgbColor.red ? Math.round(rgbColor.red * 255).toString(16).padStart(2, '0') : '00';
-                const green = Math.round(rgbColor.green * 255).toString(16).padStart(2, '0');
-                const blue = Math.round(rgbColor.blue * 255).toString(16).padStart(2, '0');
-
-                const hexColor = `#${red}${green}${blue}`;
-
-                console.log(hexColor);
-        
-                console.log(sheetData[0].rowData[4].values[3]); 
-        
-            } catch (error) {
-                console.error('Ошибка при получении данных:', error.message);
-            }
-            // try {
-            // const sheets = google.sheets({ version: 'v4', auth: client });
-            // const response = await sheets.spreadsheets.get({
-            //     spreadsheetId: '1IGQZ1Fn3_BBGshayGMdFC6foTcGes4igYAef7c1TOQk',
-            //     ranges: 'Лист1!A2:P',
-            //     includeGridData: true,
-            // });
-
-            // console.log(response)
-
-            // const rows = response.data.values;
-            // if (!rows || rows.length === 0) {
-            //     console.log('No data found.');
-            //     return;
-            // }
-
-            // rows.forEach((row) => {
-            //     let order = {
-            //         group: row[0],
-            //         size: row[1],
-            //         name: row[2],
-            //         fabric: row[3],
-            //         description: row[4],
-            //         base: row[5],
-            //         deliveryDate: row[6],
-            //         innerPrice: row[7],
-            //         number: row[8],
-            //         dealer: row[9],
-            //         deadline: row[10],
-            //         dateOfOrder: row[11],
-            //         adress: row[12],
-            //         additional: row[13],
-            //         rest: row[14],
-            //         plannedDeadline: row[15],
-            //     }
-            //     // orders.push(order);
-            // });
-            // } catch(err) {
-            //     console.log(err)
-            // } 
+        const rows = response.data.values;
+        if (!rows || rows.length === 0) {
+            console.log('No data found.');
+            return;
         }
 
-        return orders;
+        rows.forEach((row, index) => {
+            const dateOfOrderString = row[11];
+            const deadlineString = row[15];
+            const dateOfOrderParts = dateOfOrderString.split('.');
+            const deadlineParts = deadlineString.split('.');
+            const dateOfOrderObject = new Date(`${dateOfOrderParts[2]}-${dateOfOrderParts[1]}-${dateOfOrderParts[0]}`);
+            const deadlineObject = new Date(`${deadlineParts[2]}-${deadlineParts[1]}-${deadlineParts[0]}`)
+            
+            let order = {
+                group: row[0],
+                size: row[1],
+                name: row[2],
+                fabric: row[3],
+                description: row[4],
+                base: row[5],
+                deliveryDate: row[6],
+                innerPrice: row[7],
+                number: row[8],
+                dealer: row[9],
+                deadline: row[10],
+                dateOfOrder: dateOfOrderObject.toISOString(),
+                adress: row[12],
+                additional: row[13],
+                rest: row[14],
+                plannedDeadline: deadlineObject.toISOString(),
+                _id: row[17],
+            }
 
+            if (!row[17] || row[17] === '') {
+                const id = uuidv4();
+                const range = `Лист1!R${index + 2}`;
+                const identify = updateSheets(sheets, '1IGQZ1Fn3_BBGshayGMdFC6foTcGes4igYAef7c1TOQk', range, id);
+                order._id = id;
+            }
+
+            orders.push(order);
+        });
+        } catch(err) {
+            console.log(err)
+        } 
+    }
+
+    return orders;
 };
 
 async function getDataBaseOrders(user) {
@@ -194,10 +180,9 @@ async function getAllOrders(req, res, next) {
     const homeIsOrders = await getHomeIsOrders(req.user);
     const milliniOrders = await getMilliniOrders(req.user);
     const otherOrders = await getOtherOrders(req.user);
-    const dataBaseOrders = await getDataBaseOrders(req.user);
     const sweetHomeOrders = await getSweetHomeOrders(req.user, req.sheets.client)
 
-    const allOrdersArray = mebTownOrders.concat(homeIsOrders, milliniOrders, otherOrders, dataBaseOrders, sweetHomeOrders);
+    const allOrdersArray = mebTownOrders.concat(homeIsOrders, milliniOrders, otherOrders, sweetHomeOrders);
 
     if (!allOrdersArray.length) {
         res.status(200).send({ message: 'Orders not found' });
@@ -214,7 +199,9 @@ async function getAllOrders(req, res, next) {
       });
 
     allOrdersArray.map((order) => {
-        order._id = uuidv4();
+        if (!order.dealer.includes('Одесса')) {
+           order._id = uuidv4(); 
+        }
     });
 
     res.status(200).json({ allOrdersArray });
