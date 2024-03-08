@@ -99,7 +99,7 @@ async function getSweetHomeOrders(user, client) {
         try {
         const sheets = google.sheets({ version: 'v4', auth: client });
         const response = await sheets.spreadsheets.values.get({
-            spreadsheetId: '1IGQZ1Fn3_BBGshayGMdFC6foTcGes4igYAef7c1TOQk',
+            spreadsheetId: process.env.SWEET_HOME_SHEET_LINK,
             range: 'Лист1!A2:R',
         });
 
@@ -140,7 +140,7 @@ async function getSweetHomeOrders(user, client) {
             if (!row[17] || row[17] === '') {
                 const id = uuidv4();
                 const range = `Лист1!R${index + 2}`;
-                const identify = updateSheets(sheets, '1IGQZ1Fn3_BBGshayGMdFC6foTcGes4igYAef7c1TOQk', range, id);
+                const identify = updateSheets(sheets, process.env.SWEET_HOME_SHEET_LINK , range, id);
                 order._id = id;
             }
 
