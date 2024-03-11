@@ -228,16 +228,14 @@ async function addOrder(req, res, next) {
 
     if (user.organization === 'misazh') {
         spreadsheetId  = process.env.MISAZH_SHEET_LINK;
-    }
-
-    if (user.organization === 'sweethome') {
+    } else if (user.organization === 'sweethome') {
         spreadsheetId  = process.env.SWEET_HOME_SHEET_LINK;
     }
 
     try {
         await sheets.spreadsheets.values.append({
             spreadsheetId,
-            range: 'Лист1!A2:R',
+            range: 'Лист1!A2:S',
             valueInputOption: "RAW",
             requestBody: { values: [
                 [`${order.group}`, 
@@ -258,6 +256,7 @@ async function addOrder(req, res, next) {
                 order.plannedDeadline,
                 ``,
                 `${uuidv4()}`,
+                `${[ ...order.images]}`,
             ]
             ] },
         });

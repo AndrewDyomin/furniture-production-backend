@@ -1,9 +1,6 @@
 const path = require("node:path");
 const crypto = require("node:crypto");
-const axios = require('axios');
-
 const multer = require("multer");
-const IMGBB_API_KEY = process.env.IMGBB_API_KEY;
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
