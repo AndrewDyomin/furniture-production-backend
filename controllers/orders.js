@@ -230,6 +230,8 @@ async function addOrder(req, res, next) {
         spreadsheetId  = process.env.MISAZH_SHEET_LINK;
     } else if (user.organization === 'sweethome') {
         spreadsheetId  = process.env.SWEET_HOME_SHEET_LINK;
+    } else if (user.organization === 'Yura') {
+        spreadsheetId  = process.env.OTHER_SHEET_LINK;
     }
 
     try {
