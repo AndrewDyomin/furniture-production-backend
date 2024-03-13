@@ -225,7 +225,7 @@ async function getMisazhOrders(user, client) {
             const deadlineParts = deadlineString.split('.');
             const dateOfOrderObject = new Date(`${dateOfOrderParts[2]}-${dateOfOrderParts[1]}-${dateOfOrderParts[0]}`);
             const deadlineObject = new Date(`${deadlineParts[2]}-${deadlineParts[1]}-${deadlineParts[0]}`)
-            const imagesArray = row[18].length === 0 ? [] : row[18].split('.');
+            const imagesArray = row[18].length === 0 ? [] : row[18].split(',');
 
             let order = {
                 group: row[0],
