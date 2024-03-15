@@ -75,7 +75,7 @@ async function login(req, res, next) {
 
     res
       .status(200)
-      .send({ token, user: { email: user.email } });
+      .send({ token, user: { email: user.email, name: user.name, description: user.description } });
   } catch (error) {
     next(error);
   }
@@ -95,11 +95,11 @@ async function logout(req, res, next) {
 
 async function current(req, res, next) {
   try {
-  const { email, description } = req.user.user;
+  const { email, description, name } = req.user.user;
 
   res
   .status(200)
-  .send({ user: { email, description } });
+  .send({ user: { email, description, name } });
   } catch(error) {
     next(error);
   }
