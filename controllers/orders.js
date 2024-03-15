@@ -6,295 +6,383 @@ const updateSheets = require("../helpers/updateSheets");
 const {google} = require('googleapis');
 
 
-async function getMebTownOrders(user) {
+// async function getMebTownOrders(user) {
 
-    let orders = [];
-    const { access } = user.user;
+//     let orders = [];
+//     const { access } = user.user;
     
-    if (access.mebTown) {
-        try {
-            await axios.get(process.env.MEBTOWN_LINK)
-            .then((response) => {
-                orders = response.data.orders;
-                return(orders);
-            });
+//     if (access.mebTown) {
+//         try {
+//             await axios.get(process.env.MEBTOWN_LINK)
+//             .then((response) => {
+//                 orders = response.data.orders;
+//                 return(orders);
+//             });
             
-        } catch(err) {
-            console.log(err)
-        }
-    }
+//         } catch(err) {
+//             console.log(err)
+//         }
+//     }
 
-    return orders;
-};
+//     return orders;
+// };
 
-async function getHomeIsOrders(user) {
+// async function getHomeIsOrders(user) {
 
-    let orders = [];
-    const { access } = user.user;
+//     let orders = [];
+//     const { access } = user.user;
     
-    if (access.homeIs) {
-        try {
-            await axios.get(process.env.HOMEIS_LINK)
-            .then((response) => {
-                orders = response.data.orders;
-                return(orders);
-            });
+//     if (access.homeIs) {
+//         try {
+//             await axios.get(process.env.HOMEIS_LINK)
+//             .then((response) => {
+//                 orders = response.data.orders;
+//                 return(orders);
+//             });
             
-        } catch(err) {
-            console.log(err)
-        }
-    }
+//         } catch(err) {
+//             console.log(err)
+//         }
+//     }
 
-    return orders;
-};
+//     return orders;
+// };
 
-async function getMilliniOrders(user) {
-    
-    let orders = [];
-    const { access } = user.user;
-    
-    if (access.millini) {
-        try {
-            await axios.get(process.env.MILLINI_LINK)
-            .then((response) => {
-                orders = response.data.orders;
-                return(orders);
-            });
-            
-        } catch(err) {
-            console.log(err)
-        }
-    }
-
-    return orders;
-};
-
-async function getOtherOrders(user, client) {
-
-    const { access } = user.user;
-    const orders = [];
-
-    if (access.other) {
-        try {
-        const sheets = google.sheets({ version: 'v4', auth: client });
-        const response = await sheets.spreadsheets.values.get({
-            spreadsheetId: process.env.OTHER_SHEET_LINK,
-            range: 'Лист1!A2:S',
-        });
-
-        const rows = response.data.values;
-        if (!rows || rows.length === 0) {
-            console.log('No data found.');
-            return orders;
-        }
-
-        rows.forEach((row, index) => {
-            const dateOfOrderString = row[11];
-            const deadlineString = row[15];
-            const dateOfOrderParts = dateOfOrderString.split('.');
-            const deadlineParts = deadlineString.split('.');
-            const dateOfOrderObject = new Date(`${dateOfOrderParts[2]}-${dateOfOrderParts[1]}-${dateOfOrderParts[0]}`);
-            const deadlineObject = new Date(`${deadlineParts[2]}-${deadlineParts[1]}-${deadlineParts[0]}`)
-            
-            let order = {
-                group: row[0],
-                size: row[1],
-                name: row[2],
-                fabric: row[3],
-                description: row[4],
-                base: row[5],
-                deliveryDate: row[6],
-                innerPrice: row[7],
-                number: row[8],
-                dealer: row[9],
-                deadline: row[10],
-                dateOfOrder: dateOfOrderObject.toISOString(),
-                adress: row[12],
-                additional: row[13],
-                rest: row[14],
-                plannedDeadline: deadlineObject.toISOString(),
-                _id: row[17],
-                imagers: row[18],
-            }
-
-            if (!row[17] || row[17] === '') {
-                const id = uuidv4();
-                const range = `Лист1!R${index + 2}`;
-                updateSheets(sheets, process.env.OTHER_SHEET_LINK , range, id);
-                order._id = id;
-            }
-
-            orders.push(order);
-        });
-        } catch(err) {
-            console.log(err)
-        } 
-    }
-
-    return orders;
-};
-
-async function getSweetHomeOrders(user, client) {
-
-    const { access } = user.user;
-    const orders = [];
-
-    if (access.sweetHome) {
-        try {
-        const sheets = google.sheets({ version: 'v4', auth: client });
-        const response = await sheets.spreadsheets.values.get({
-            spreadsheetId: process.env.SWEET_HOME_SHEET_LINK,
-            range: 'Лист1!A2:R',
-        });
-
-        const rows = response.data.values;
-        if (!rows || rows.length === 0) {
-            console.log('No data found.');
-            return orders;
-        }
-
-        rows.forEach((row, index) => {
-            const dateOfOrderString = row[11];
-            const deadlineString = row[15];
-            const dateOfOrderParts = dateOfOrderString.split('.');
-            const deadlineParts = deadlineString.split('.');
-            const dateOfOrderObject = new Date(`${dateOfOrderParts[2]}-${dateOfOrderParts[1]}-${dateOfOrderParts[0]}`);
-            const deadlineObject = new Date(`${deadlineParts[2]}-${deadlineParts[1]}-${deadlineParts[0]}`)
-            
-            let order = {
-                group: row[0],
-                size: row[1],
-                name: row[2],
-                fabric: row[3],
-                description: row[4],
-                base: row[5],
-                deliveryDate: row[6],
-                innerPrice: row[7],
-                number: row[8],
-                dealer: row[9],
-                deadline: row[10],
-                dateOfOrder: dateOfOrderObject.toISOString(),
-                adress: row[12],
-                additional: row[13],
-                rest: row[14],
-                plannedDeadline: deadlineObject.toISOString(),
-                _id: row[17],
-                imagers: row[18],
-            }
-
-            if (!row[17] || row[17] === '') {
-                const id = uuidv4();
-                const range = `Лист1!R${index + 2}`;
-                updateSheets(sheets, process.env.SWEET_HOME_SHEET_LINK , range, id);
-                order._id = id;
-            }
-
-            orders.push(order);
-        });
-        } catch(err) {
-            console.log(err)
-        } 
-    }
-
-    return orders;
-};
-
-async function getMisazhOrders(user, client) {
-
-    const { access } = user.user;
-    const orders = [];
-
-    if (access.misazh) {
-        try {
-        const sheets = google.sheets({ version: 'v4', auth: client });
-        const response = await sheets.spreadsheets.values.get({
-            spreadsheetId: process.env.MISAZH_SHEET_LINK,
-            range: 'Лист1!A2:S',
-        });
-
-        const rows = response.data.values;
-        if (!rows || rows.length === 0) {
-            console.log('No data found.');
-            return orders;
-        }
-
-        rows.forEach((row, index) => {
-            const dateOfOrderString = row[11];
-            const deadlineString = row[15];
-            const dateOfOrderParts = dateOfOrderString.split('.');
-            const deadlineParts = deadlineString.split('.');
-            const dateOfOrderObject = new Date(`${dateOfOrderParts[2]}-${dateOfOrderParts[1]}-${dateOfOrderParts[0]}`);
-            const deadlineObject = new Date(`${deadlineParts[2]}-${deadlineParts[1]}-${deadlineParts[0]}`)
-            const imagesArray = row[18].length === 0 ? [] : row[18].split(',');
-
-            let order = {
-                group: row[0],
-                size: row[1],
-                name: row[2],
-                fabric: row[3],
-                description: row[4],
-                base: row[5],
-                deliveryDate: row[6],
-                innerPrice: row[7],
-                number: row[8],
-                dealer: row[9],
-                deadline: row[10],
-                dateOfOrder: dateOfOrderObject.toISOString(),
-                adress: row[12],
-                additional: row[13],
-                rest: row[14],
-                plannedDeadline: deadlineObject.toISOString(),
-                _id: row[17],
-                images: imagesArray,
-            }
-
-            if (!row[17] || row[17] === '') {
-                const id = uuidv4();
-                const range = `Лист1!R${index + 2}`;
-                updateSheets(sheets, process.env.MISAZH_SHEET_LINK , range, id);
-                order._id = id;
-            }
-
-            orders.push(order);
-        });
-        } catch(err) {
-            console.log(err)
-        } 
-    }
-
-    return orders;
-};
-
-// async function getDataBaseOrders(user) {
+// async function getMilliniOrders(user) {
     
 //     let orders = [];
-//     const { description, name } = user.user;
+//     const { access } = user.user;
     
-//     try {
-//         if (description === 'administrator') {
-//             orders = await Order.find({}).exec();
-//         } else if (description === 'manager') {
-//             orders = await Order.find({ dealer: name }).exec();
+//     if (access.millini) {
+//         try {
+//             await axios.get(process.env.MILLINI_LINK)
+//             .then((response) => {
+//                 orders = response.data.orders;
+//                 return(orders);
+//             });
+            
+//         } catch(err) {
+//             console.log(err)
 //         }
-//         return orders;
-//     } catch (err) {
-//         console.error(err);
-//         return orders;
 //     }
+
+//     return orders;
 // };
+
+// async function getOtherOrders(user, client) {
+
+//     const { access } = user.user;
+//     const orders = [];
+
+//     if (access.other) {
+//         try {
+//         const sheets = google.sheets({ version: 'v4', auth: client });
+//         const response = await sheets.spreadsheets.values.get({
+//             spreadsheetId: process.env.OTHER_SHEET_LINK,
+//             range: 'Лист1!A2:S',
+//         });
+
+//         const rows = response.data.values;
+//         if (!rows || rows.length === 0) {
+//             console.log('No data found.');
+//             return orders;
+//         }
+
+//         rows.forEach((row, index) => {
+//             const dateOfOrderString = row[11];
+//             const deadlineString = row[15];
+//             const dateOfOrderParts = dateOfOrderString.split('.');
+//             const deadlineParts = deadlineString.split('.');
+//             const dateOfOrderObject = new Date(`${dateOfOrderParts[2]}-${dateOfOrderParts[1]}-${dateOfOrderParts[0]}`);
+//             const deadlineObject = new Date(`${deadlineParts[2]}-${deadlineParts[1]}-${deadlineParts[0]}`)
+            
+//             let order = {
+//                 group: row[0],
+//                 size: row[1],
+//                 name: row[2],
+//                 fabric: row[3],
+//                 description: row[4],
+//                 base: row[5],
+//                 deliveryDate: row[6],
+//                 innerPrice: row[7],
+//                 number: row[8],
+//                 dealer: row[9],
+//                 deadline: row[10],
+//                 dateOfOrder: dateOfOrderObject.toISOString(),
+//                 adress: row[12],
+//                 additional: row[13],
+//                 rest: row[14],
+//                 plannedDeadline: deadlineObject.toISOString(),
+//                 _id: row[17],
+//                 imagers: row[18],
+//             }
+
+//             if (!row[17] || row[17] === '') {
+//                 const id = uuidv4();
+//                 const range = `Лист1!R${index + 2}`;
+//                 updateSheets(sheets, process.env.OTHER_SHEET_LINK , range, id);
+//                 order._id = id;
+//             }
+
+//             orders.push(order);
+//         });
+//         } catch(err) {
+//             console.log(err)
+//         } 
+//     }
+
+//     return orders;
+// };
+
+// async function getSweetHomeOrders(user, client) {
+
+//     const { access } = user.user;
+//     const orders = [];
+
+//     if (access.sweetHome) {
+//         try {
+//         const sheets = google.sheets({ version: 'v4', auth: client });
+//         const response = await sheets.spreadsheets.values.get({
+//             spreadsheetId: process.env.SWEET_HOME_SHEET_LINK,
+//             range: 'Лист1!A2:R',
+//         });
+
+//         const rows = response.data.values;
+//         if (!rows || rows.length === 0) {
+//             console.log('No data found.');
+//             return orders;
+//         }
+
+//         rows.forEach((row, index) => {
+//             const dateOfOrderString = row[11];
+//             const deadlineString = row[15];
+//             const dateOfOrderParts = dateOfOrderString.split('.');
+//             const deadlineParts = deadlineString.split('.');
+//             const dateOfOrderObject = new Date(`${dateOfOrderParts[2]}-${dateOfOrderParts[1]}-${dateOfOrderParts[0]}`);
+//             const deadlineObject = new Date(`${deadlineParts[2]}-${deadlineParts[1]}-${deadlineParts[0]}`)
+            
+//             let order = {
+//                 group: row[0],
+//                 size: row[1],
+//                 name: row[2],
+//                 fabric: row[3],
+//                 description: row[4],
+//                 base: row[5],
+//                 deliveryDate: row[6],
+//                 innerPrice: row[7],
+//                 number: row[8],
+//                 dealer: row[9],
+//                 deadline: row[10],
+//                 dateOfOrder: dateOfOrderObject.toISOString(),
+//                 adress: row[12],
+//                 additional: row[13],
+//                 rest: row[14],
+//                 plannedDeadline: deadlineObject.toISOString(),
+//                 _id: row[17],
+//                 imagers: row[18],
+//             }
+
+//             if (!row[17] || row[17] === '') {
+//                 const id = uuidv4();
+//                 const range = `Лист1!R${index + 2}`;
+//                 updateSheets(sheets, process.env.SWEET_HOME_SHEET_LINK , range, id);
+//                 order._id = id;
+//             }
+
+//             orders.push(order);
+//         });
+//         } catch(err) {
+//             console.log(err)
+//         } 
+//     }
+
+//     return orders;
+// };
+
+// async function getMisazhOrders(user, client) {
+
+//     const { access } = user.user;
+//     const orders = [];
+
+//     if (access.misazh) {
+//         try {
+//         const sheets = google.sheets({ version: 'v4', auth: client });
+//         const response = await sheets.spreadsheets.values.get({
+//             spreadsheetId: process.env.MISAZH_SHEET_LINK,
+//             range: 'Лист1!A2:S',
+//         });
+
+//         const rows = response.data.values;
+//         if (!rows || rows.length === 0) {
+//             console.log('No data found.');
+//             return orders;
+//         }
+
+//         rows.forEach((row, index) => {
+//             const dateOfOrderString = row[11];
+//             const deadlineString = row[15];
+//             const dateOfOrderParts = dateOfOrderString.split('.');
+//             const deadlineParts = deadlineString.split('.');
+//             const dateOfOrderObject = new Date(`${dateOfOrderParts[2]}-${dateOfOrderParts[1]}-${dateOfOrderParts[0]}`);
+//             const deadlineObject = new Date(`${deadlineParts[2]}-${deadlineParts[1]}-${deadlineParts[0]}`)
+//             const imagesArray = row[18].length === 0 ? [] : row[18].split(',');
+
+//             let order = {
+//                 group: row[0],
+//                 size: row[1],
+//                 name: row[2],
+//                 fabric: row[3],
+//                 description: row[4],
+//                 base: row[5],
+//                 deliveryDate: row[6],
+//                 innerPrice: row[7],
+//                 number: row[8],
+//                 dealer: row[9],
+//                 deadline: row[10],
+//                 dateOfOrder: dateOfOrderObject.toISOString(),
+//                 adress: row[12],
+//                 additional: row[13],
+//                 rest: row[14],
+//                 plannedDeadline: deadlineObject.toISOString(),
+//                 _id: row[17],
+//                 images: imagesArray,
+//             }
+
+//             if (!row[17] || row[17] === '') {
+//                 const id = uuidv4();
+//                 const range = `Лист1!R${index + 2}`;
+//                 updateSheets(sheets, process.env.MISAZH_SHEET_LINK , range, id);
+//                 order._id = id;
+//             }
+
+//             orders.push(order);
+//         });
+//         } catch(err) {
+//             console.log(err)
+//         } 
+//     }
+
+//     return orders;
+// };
+
+async function getOrdersFromSheets(client, spreadsheetId, range) {
+
+    const orders = [];
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth: client });
+        const response = await sheets.spreadsheets.values.get({
+        spreadsheetId,
+        range,
+    });
+
+    const rows = response.data.values;
+    if (!rows || rows.length === 0) {
+        console.log('No data found.');
+        return orders;
+    }
+
+    rows.forEach((row, index) => {
+        const dateOfOrderString = row[11];
+        const deadlineString = row[15];
+        const dateOfOrderParts = dateOfOrderString.split('.');
+        const deadlineParts = deadlineString.split('.');
+        const dateOfOrderObject = new Date(`${dateOfOrderParts[2]}-${dateOfOrderParts[1]}-${dateOfOrderParts[0]}`);
+        const deadlineObject = new Date(`${deadlineParts[2]}-${deadlineParts[1]}-${deadlineParts[0]}`)
+        const imagesArray = !row[18] || row[18] === '' ? [] : row[18].split(',');
+
+        let order = {
+            group: row[0],
+            size: row[1],
+            name: row[2],
+            fabric: row[3],
+            description: row[4],
+            base: row[5],
+            deliveryDate: row[6],
+            innerPrice: row[7],
+            number: row[8],
+            dealer: row[9],
+            deadline: row[10],
+            dateOfOrder: dateOfOrderObject.toISOString(),
+            adress: row[12],
+            additional: row[13],
+            rest: row[14],
+            plannedDeadline: deadlineObject.toISOString(),
+            orderStatus: row[16],
+            _id: row[17],
+            images: imagesArray,
+            fabricStatus: row[19] || '',
+            coverStatus: row[20] || '',
+            frameStatus: row[21] || '',
+        }
+
+        if (!row[17] || row[17] === '') {
+            const id = uuidv4();
+            const range = `Лист1!R${index + 2}`;
+            updateSheets(sheets, spreadsheetId , range, id);
+            order._id = id;
+        }
+
+        orders.push(order);
+    });
+    } catch(err) {
+        console.log(err)
+    } 
+    
+    return orders;
+};
 
 async function getAllOrders(req, res, next) {
 
+    const { access } = req.user.user;
+    const client = req.sheets.client;
+    let allOrdersArray = [];
+
+    if (access.misazh) {
+        let spreadsheetId = process.env.MISAZH_SHEET_LINK;
+        let range = 'Лист1!A2:V';
+        let orders = await getOrdersFromSheets(client, spreadsheetId, range);
+        if (orders.length !== 0) {
+            allOrdersArray.push(...orders)};
+    };
+
+    if (access.mebTown) {
+        let spreadsheetId = process.env.MEBTOWN_SHEET_LINK;
+        let range = 'Лист1!A2:V';
+        let orders = await getOrdersFromSheets(client, spreadsheetId, range);
+        if (orders.length !== 0) {
+            allOrdersArray.push(...orders)};
+    };
+
+    if (access.homeIs) {
+        let spreadsheetId = process.env.HOMEIS_SHEET_LINK;
+        let range = 'Лист1!A2:V';
+        let orders = await getOrdersFromSheets(client, spreadsheetId, range);
+        if (orders.length !== 0) {
+            allOrdersArray.push(...orders)};
+    };
+
+    if (access.other) {
+        let spreadsheetId = process.env.OTHER_SHEET_LINK;
+        let range = 'Лист1!A2:V';
+        let orders = await getOrdersFromSheets(client, spreadsheetId, range);
+        if (orders.length !== 0) {
+            allOrdersArray.push(...orders)};
+    };
+
+    if (access.sweetHome) {
+        let spreadsheetId = process.env.SWEET_HOME_SHEET_LINK;
+        let range = 'Лист1!A2:V';
+        let orders = await getOrdersFromSheets(client, spreadsheetId, range);
+        if (orders.length !== 0) {
+            allOrdersArray.push(...orders)};
+    };
+
     try {
 
-    const mebTownOrders = await getMebTownOrders(req.user);
-    const homeIsOrders = await getHomeIsOrders(req.user);
-    const milliniOrders = await getMilliniOrders(req.user);
-    const otherOrders = await getOtherOrders(req.user, req.sheets.client);
-    const misazhOrders = await getMisazhOrders(req.user, req.sheets.client);
-    const sweetHomeOrders = await getSweetHomeOrders(req.user, req.sheets.client);
+    // const milliniOrders = await getMilliniOrders(req.user);
 
-    const allOrdersArray = mebTownOrders.concat(homeIsOrders, milliniOrders, otherOrders, misazhOrders, sweetHomeOrders);
+    // const allOrdersArray = mebTownOrders.concat(homeIsOrders, milliniOrders, otherOrders, misazhOrders, sweetHomeOrders);
 
     if (!allOrdersArray.length) {
         res.status(200).send({ message: 'Orders not found' });
@@ -464,4 +552,4 @@ async function deleteOrder(req, res, next) {
     }
 };
 
-module.exports = { getAllOrders, addOrder, updateOrder, deleteOrder, getSweetHomeOrders };
+module.exports = { getAllOrders, addOrder, updateOrder, deleteOrder };
