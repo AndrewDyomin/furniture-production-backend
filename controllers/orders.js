@@ -28,7 +28,7 @@ async function getOrdersFromSheets(client, spreadsheetId, range) {
             const dateOfOrderString = row[11];
             const deadlineString = row[15];
             const dateOfOrderParts = dateOfOrderString.split('.');
-            const deadlineParts = !row[15] || row[15] === '' ? [`${date.getFullYear}`, `${date.getMonth()}`, `${date.getDate()}`] : deadlineString.split('.');
+            const deadlineParts = !row[15] || row[15] === '' ? [`${date.getDate()}`, `${date.getMonth()}`, `${date.getFullYear}`] : deadlineString.split('.');
             const dateOfOrderObject = new Date(`${dateOfOrderParts[2]}-${dateOfOrderParts[1]}-${dateOfOrderParts[0]}`);
             const deadlineObject = new Date(`${deadlineParts[2]}-${deadlineParts[1]}-${deadlineParts[0]}`);
             const imagesArray = !row[18] || row[18] === '' ? [] : row[18].split(',');
