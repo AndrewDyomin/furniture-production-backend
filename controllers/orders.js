@@ -5,7 +5,7 @@ const Order = require("../models/order");
 const updateSheets = require("../helpers/updateSheets");
 const {google} = require('googleapis');
 
-async function getOrdersFromSheets(client, spreadsheetId, range) {
+async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
 
     try {
         const sheets = google.sheets({ version: 'v4', auth: client });
@@ -59,7 +59,7 @@ async function getOrdersFromSheets(client, spreadsheetId, range) {
             };
 
             if (!row[17] || row[17] === '') {
-                const id = uuidv4();
+                const id = `${organization}.${uuidv4()}`;
                 let sheetName = range.slice(0, range.indexOf('!'));
                 let updateRange = `${sheetName}!R${index + 2}`;
                 await updateSheets(sheets, spreadsheetId, updateRange, id);
@@ -83,7 +83,8 @@ async function getAllOrders(req, res, next) {
     if (access.misazh) {
         let spreadsheetId = process.env.MISAZH_SHEET_LINK;
         let range = 'Лист1!A2:V';
-        let orders = await getOrdersFromSheets(client, spreadsheetId, range);
+        let organization = 'misazh';
+        let orders = await getOrdersFromSheets(client, spreadsheetId, range, organization);
         if (orders.length !== 0) {
             allOrdersArray.push(...orders)};
     };
@@ -91,7 +92,8 @@ async function getAllOrders(req, res, next) {
     if (access.mebTown) {
         let spreadsheetId = process.env.MEBTOWN_SHEET_LINK;
         let range = 'Лист1!A2:V';
-        let orders = await getOrdersFromSheets(client, spreadsheetId, range);
+        let organization = 'mebtown';
+        let orders = await getOrdersFromSheets(client, spreadsheetId, range, organization);
         if (orders.length !== 0) {
             allOrdersArray.push(...orders)};
     };
@@ -99,7 +101,8 @@ async function getAllOrders(req, res, next) {
     if (access.homeIs) {
         let spreadsheetId = process.env.HOMEIS_SHEET_LINK;
         let range = 'Лист1!A2:V';
-        let orders = await getOrdersFromSheets(client, spreadsheetId, range);
+        let organization = 'homeis';
+        let orders = await getOrdersFromSheets(client, spreadsheetId, range, organization);
         if (orders.length !== 0) {
             allOrdersArray.push(...orders)};
     };
@@ -107,7 +110,8 @@ async function getAllOrders(req, res, next) {
     if (access.other) {
         let spreadsheetId = process.env.OTHER_SHEET_LINK;
         let range = 'Лист1!A2:V';
-        let orders = await getOrdersFromSheets(client, spreadsheetId, range);
+        let organization = 'yura';
+        let orders = await getOrdersFromSheets(client, spreadsheetId, range, organization);
         if (orders.length !== 0) {
             allOrdersArray.push(...orders)};
     };
@@ -115,7 +119,8 @@ async function getAllOrders(req, res, next) {
     if (access.sweetHome) {
         let spreadsheetId = process.env.SWEET_HOME_SHEET_LINK;
         let range = 'Лист1!A2:V';
-        let orders = await getOrdersFromSheets(client, spreadsheetId, range);
+        let organization = 'sweethome';
+        let orders = await getOrdersFromSheets(client, spreadsheetId, range, organization);
         if (orders.length !== 0) {
             allOrdersArray.push(...orders)};
     };
@@ -123,7 +128,8 @@ async function getAllOrders(req, res, next) {
     if (access.millini) {
         let spreadsheetId = process.env.MILLINI_SHEET_LINK;
         let range = 'замовлення !A2:V';
-        let orders = await getOrdersFromSheets(client, spreadsheetId, range);
+        let organization = 'millini';
+        let orders = await getOrdersFromSheets(client, spreadsheetId, range, organization);
         if (orders.length !== 0) {
             allOrdersArray.push(...orders)};
     };
@@ -143,12 +149,6 @@ async function getAllOrders(req, res, next) {
         }
         return 0;
       });
-
-    allOrdersArray.map((order) => {
-        if (order.dealer && !order.dealer.includes('Одесса')) {
-           order._id = uuidv4(); 
-        }
-    });
 
     res.status(200).json({ allOrdersArray });
     } catch(err) {
@@ -212,7 +212,7 @@ async function addOrder(req, res, next) {
                 `${order.rest}`, 
                 order.plannedDeadline,
                 ``,
-                `${uuidv4()}`,
+                ``,
                 `${order.images}`,
             ]
             ] },
@@ -249,49 +249,52 @@ async function addOrder(req, res, next) {
 async function updateOrder(req, res, next) {
 
     try {
-    
-        // const { 
-        //     id,
-        //     group,
-        //     size,
-        //     name,
-        //     fabric, 
-        //     description,
-        //     base,
-        //     deliveryDate, 
-        //     innerPrice,
-        //     number,
-        //     dealer,
-        //     deadline,
-        //     dateOfOrder,
-        //     adress,
-        //     additional,
-        //     rest,
-        //     plannedDeliveryDate
-        // } = req.body;
-        // const updatedOrder = await Order.findByIdAndUpdate(id, {
-        //     group,
-        //     size,
-        //     name,
-        //     fabric, 
-        //     description,
-        //     base,
-        //     deliveryDate, 
-        //     innerPrice,
-        //     number,
-        //     dealer,
-        //     deadline,
-        //     dateOfOrder,
-        //     adress,
-        //     additional,
-        //     rest,
-        //     plannedDeliveryDate
-        // }, { new: true }).exec();
+
+        const client = req.sheets.client;
+        const sheets = google.sheets({ version: 'v4', auth: client });
+        const { _id } = req.body;
+        const organization = _id.slice(0, _id.indexOf('.'));
+        let spreadsheetId = '';
+        let row = '';
+        let range = '';
+
+        if (organization === 'misazh') {
+            spreadsheetId = process.env.MISAZH_SHEET_LINK;
+            range = 'Лист1!A2:V';
+        } else if (organization === 'mebtown') {
+            spreadsheetId = process.env.MEBTOWN_SHEET_LINK;
+            range = 'Лист1!A2:V';
+        } else if (organization === 'homeis') {
+            spreadsheetId = process.env.HOMEIS_SHEET_LINK;
+            range = 'Лист1!A2:V';
+        } else if (organization === 'yura') {
+            spreadsheetId = process.env.OTHER_SHEET_LINK;
+            range = 'Лист1!A2:V';
+        } else if (organization === 'sweethome') {
+            spreadsheetId = process.env.SWEET_HOME_SHEET_LINK;
+            range = 'Лист1!A2:V';
+        } else if (organization === 'millini') {
+            spreadsheetId = process.env.MILLINI_SHEET_LINK;
+            range = 'замовлення !A2:V';
+        };
+
+        const orders = await getOrdersFromSheets(client, spreadsheetId, range, organization);
+
+        for (let index = 0; index < orders.length; index++) {
+            const order = orders[index];
+            if (order._id === _id) {
+                row = `${range.slice(0, range.indexOf('!'))}!A${index + 2}:V`;
+            }
+        }
+
+        // const values = [];
+
+        // await updateSheets(sheets, spreadsheetId, row, values);
     
         res.status(200).send({ message : 'Order is updated'});
-      } catch (error) {
+    } catch (error) {
         next(error);
-      }
+    }
 };
 
 async function deleteOrder(req, res, next) {
