@@ -57,7 +57,12 @@ async function uploadToDisk(req, res, next) {
         }
       });
     }
-    req.body.images = imageLinks;
+    if (!req.body.images || req.body.images.length === 0) {
+      req.body.images = imageLinks
+    } else {
+      const newArray = [ ...req.body.images, ...imageLinks];
+      req.body.images = newArray;
+    }
     next();
   } catch (error) {
     console.log(error);

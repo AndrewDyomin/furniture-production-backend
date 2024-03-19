@@ -64,7 +64,7 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
             };
 
             if (!row[17] || row[17] === '') {
-                const id = `${organization}.${uuidv4()}`;
+                const id = [`${organization}.${uuidv4()}`];
                 let sheetName = range.slice(0, range.indexOf('!'));
                 let updateRange = `${sheetName}!R${index + 2}`;
                 await updateSheets(sheets, spreadsheetId, updateRange, id);
@@ -257,7 +257,7 @@ async function updateOrder(req, res, next) {
 
         const client = req.sheets.client;
         const sheets = google.sheets({ version: 'v4', auth: client });
-        const { _id } = req.body;
+        const { group, size, name, fabric, description, base, deliveryDate, innerPrice, number, dealer, deadline, dateOfOrder, adress, additional, rest, plannedDeadline, orderStatus, _id, fabricStatus, coverStatus, frameStatus, images } = req.body;
         const organization = _id.slice(0, _id.indexOf('.'));
         let spreadsheetId = '';
         let row = '';
@@ -292,11 +292,43 @@ async function updateOrder(req, res, next) {
             }
         }
 
-        // const values = [];
+        const values = [group, size, name, fabric, description, base, deliveryDate, innerPrice, number, dealer, deadline, dateOfOrder, adress, additional, rest, plannedDeadline, orderStatus, _id, images.join(','), fabricStatus, coverStatus, frameStatus];
 
-        // await updateSheets(sheets, spreadsheetId, row, values);
+        await updateSheets(sheets, spreadsheetId, row, values);
+
+        const date = new Date();
+        const dateOfOrderParts = dateOfOrder.split('.');
+        const deadlineParts = !plannedDeadline || plannedDeadline === '' ? [`${date.getDate()}`, `${date.getMonth()}`, `${date.getFullYear}`] : plannedDeadline.split('.');
+        const dateOfOrderObject = new Date(`${dateOfOrderParts[2]}-${dateOfOrderParts[1]}-${dateOfOrderParts[0]}`);
+        const deadlineObject = new Date(`${deadlineParts[2]}-${deadlineParts[1]}-${deadlineParts[0]}`);
+        const imagesArray = !images ? [] : images;
+
+        const newOrder = {
+            group,
+            size,
+            name,
+            fabric,
+            description,
+            base,
+            deliveryDate,
+            innerPrice,
+            number,
+            dealer,
+            deadline,
+            dateOfOrder: dateOfOrderObject.toISOString(),
+            adress,
+            additional,
+            rest,
+            plannedDeadline: deadlineObject.toISOString(),
+            orderStatus,
+            _id,
+            images: imagesArray,
+            fabricStatus,
+            coverStatus,
+            frameStatus,
+        };
     
-        res.status(200).send({ message : 'Order is updated'});
+        res.status(200).send(newOrder);
     } catch (error) {
         next(error);
     }
