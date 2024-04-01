@@ -98,12 +98,34 @@ async function getAll(req, res, next) {
 };
 
 async function update(req, res, next) {
+  const files = req.files;
 
   try {
-    const { id, name, dimensions, description, basePrice, components } = req.body;
-    const updatedCollection = await Collection.findByIdAndUpdate(id, { name, dimensions, description, basePrice, components }, { new: true }).exec();
+    for (const file of files) {
 
-    res.status(200).send(updatedCollection);
+      const formData = new FormData();
+      formData.append('image', fs.createReadStream(file.path));
+
+      const response = await axios.post(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, formData, {
+        headers: formData.getHeaders()
+      });
+
+      req.body.images.push(response.data.data.url);
+
+      fs.unlink(file.path, (err) => {
+        if (err) {
+          console.error('Error', err);
+          return;
+        }});
+
+    }
+    console.log(req.body)
+    console.log('2: ', req.body._id);
+    console.log('3: ', JSON.parse(req.body.components));
+    // const { id, name, dimensions, description, basePrice, components } = req.body;
+    // const updatedCollection = await Collection.findByIdAndUpdate(id, { name, dimensions, description, basePrice, components }, { new: true }).exec();
+
+    // res.status(200).send(updatedCollection);
   } catch (error) {
     next(error);
   }
