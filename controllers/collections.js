@@ -119,13 +119,12 @@ async function update(req, res, next) {
         }});
 
     }
-    console.log(req.body)
-    console.log('2: ', req.body._id);
-    console.log('3: ', JSON.parse(req.body.components));
-    // const { id, name, dimensions, description, basePrice, components } = req.body;
-    // const updatedCollection = await Collection.findByIdAndUpdate(id, { name, dimensions, description, basePrice, components }, { new: true }).exec();
+    const dimensions = JSON.parse(req.body.dimensions);
+    const components = JSON.parse(req.body.components);
+    const { _id, images, name, description, basePrice } = req.body;
+    const updatedCollection = await Collection.findByIdAndUpdate(_id, { name, dimensions, description, basePrice, components, images }, { new: true }).exec();
 
-    // res.status(200).send(updatedCollection);
+    res.status(200).send(updatedCollection);
   } catch (error) {
     next(error);
   }
