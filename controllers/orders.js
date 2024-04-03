@@ -25,7 +25,7 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
         for (let index = 0; index < rows.length; index++) {
             const row = rows[index];
 
-            if (!row[0] || row[0] === '' || !row[1] || row[1] === '' ) {
+            if (!row[0] || row[0] === '' || !row[1] || row[1] === '' || !row[11] || !row[15]) {
                 continue;
             }
 
