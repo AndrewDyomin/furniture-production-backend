@@ -5,6 +5,15 @@ const Order = require("../models/order");
 const updateSheets = require("../helpers/updateSheets");
 const {google} = require('googleapis');
 
+function dateToString(date) {
+    const d = new Date(date);
+    const month = d.getMonth() + 1;
+    const dateString = `${d.getDate().toString().padStart(2, '0')}.${month
+      .toString()
+      .padStart(2, '0')}.${d.getFullYear()}`;
+    return dateString;
+  }
+
 async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
 
     try {
@@ -90,7 +99,7 @@ async function getAllOrders(req, res, next) {
         let range = 'Лист1!A2:V';
         let organization = 'misazh';
         let orders = await getOrdersFromSheets(client, spreadsheetId, range, organization);
-        if (orders.length !== 0) {
+        if (orders.length && orders.length !== 0) {
             allOrdersArray.push(...orders)};
     };
 
@@ -99,7 +108,7 @@ async function getAllOrders(req, res, next) {
         let range = 'Лист1!A2:V';
         let organization = 'mebtown';
         let orders = await getOrdersFromSheets(client, spreadsheetId, range, organization);
-        if (orders.length !== 0) {
+        if (orders.length && orders.length !== 0) {
             allOrdersArray.push(...orders)};
     };
 
@@ -108,7 +117,7 @@ async function getAllOrders(req, res, next) {
         let range = 'Лист1!A2:V';
         let organization = 'homeis';
         let orders = await getOrdersFromSheets(client, spreadsheetId, range, organization);
-        if (orders.length !== 0) {
+        if (orders.length && orders.length !== 0) {
             allOrdersArray.push(...orders)};
     };
 
@@ -117,7 +126,7 @@ async function getAllOrders(req, res, next) {
         let range = 'Лист1!A2:V';
         let organization = 'yura';
         let orders = await getOrdersFromSheets(client, spreadsheetId, range, organization);
-        if (orders.length !== 0) {
+        if (orders.length && orders.length !== 0) {
             allOrdersArray.push(...orders)};
     };
 
@@ -126,7 +135,7 @@ async function getAllOrders(req, res, next) {
         let range = 'Лист1!A2:V';
         let organization = 'sweethome';
         let orders = await getOrdersFromSheets(client, spreadsheetId, range, organization);
-        if (orders.length !== 0) {
+        if (orders.length && orders.length !== 0) {
             allOrdersArray.push(...orders)};
     };
 
@@ -135,7 +144,7 @@ async function getAllOrders(req, res, next) {
         let range = 'замовлення !A2:V';
         let organization = 'millini';
         let orders = await getOrdersFromSheets(client, spreadsheetId, range, organization);
-        if (orders.length !== 0) {
+        if (orders.length && orders.length !== 0) {
             allOrdersArray.push(...orders)};
     };
 
@@ -215,7 +224,7 @@ async function addOrder(req, res, next) {
                 `${order.adress}`, 
                 ``,
                 `${order.rest}`, 
-                order.plannedDeadline,
+                `${order.plannedDeadline}`,
                 ``,
                 ``,
                 `${order.images}`,
@@ -227,28 +236,6 @@ async function addOrder(req, res, next) {
     } catch(err) {
         console.log(err)
     }
-
-//     try {
-//         let order = await Order.findOne({ number }).exec();
-    
-//         if (order !== null) {
-//           return res.status(409).json({ message: "Number in use" });
-//         }
-
-//     order = req.body;
-//     order.dealer = user.name;
-//     order.dateOfOrder = today;
-//     order.plannedDeadline = plannedDate.toISOString();
-
-
-//     await Order.create(order);
- 
-//     res.status(200).json({ message: "Order created" });
-
-//   } catch (error) {
-//     next(error);
-//   }
-
 };
 
 async function updateOrder(req, res, next) {
@@ -334,6 +321,116 @@ async function updateOrder(req, res, next) {
     }
 };
 
+async function archiveOrder(req, res, next) {
+
+    try {
+
+        const client = req.sheets.client;
+        const sheets = google.sheets({ version: 'v4', auth: client });
+        const _id = req.body._id;
+        const organization = _id.slice(0, _id.indexOf('.'));
+        let spreadsheetId = '';
+        let row = '';
+        let newRow = `готово!A2:V`
+        let range = '';
+        let order = {};
+        let target = {};
+        let request = {};
+
+        const spreadsheetLinks = {
+            'misazh': process.env.MISAZH_SHEET_LINK,
+            'mebtown': process.env.MEBTOWN_SHEET_LINK,
+            'homeis': process.env.HOMEIS_SHEET_LINK,
+            'yura': process.env.OTHER_SHEET_LINK,
+            'sweethome': process.env.SWEET_HOME_SHEET_LINK,
+            'millini': process.env.MILLINI_SHEET_LINK
+        };
+        
+        spreadsheetId = spreadsheetLinks[organization];
+        range = (organization === 'millini') ? 'замовлення !A2:V' : 'Лист1!A2:V';
+
+        const metadata = await sheets.spreadsheets.get({
+            spreadsheetId,
+          });
+
+        const sheetId = metadata.data.sheets[0].properties.sheetId;
+
+        const orders = await getOrdersFromSheets(client, spreadsheetId, range, organization);
+
+        for (let index = 0; index < orders.length; index++) {
+            order = orders[index];
+            if (order._id === _id) {
+                target = order;
+                row = `${range.slice(0, range.indexOf('!'))}!A${index + 2}:V`;
+                
+                request = {
+                    "requests": [
+                        {
+                            "deleteDimension": {
+                                "range": {
+                                    "sheetId": sheetId,
+                                    "dimension": "ROWS",
+                                    "startIndex": index + 1,
+                                    "endIndex": index + 2
+                                }
+                            }
+                        }
+                    ]
+                };
+            }
+        }
+
+        console.log(newRow, target)
+
+        const archive = await sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: newRow,
+            valueInputOption: "RAW",
+            requestBody: { values: [
+                [`${target.group}`, 
+                `${target.size}`, 
+                `${target.name}`, 
+                `${target.fabric}`, 
+                `${target.description}`, 
+                `${target.base}`,
+                `${target.deliveryDate}`,
+                `${target.innerPrice}`,
+                `${target.number}`,
+                `${target.dealer}`, 
+                `${target.deadline}`,
+                `${dateToString(target.dateOfOrder)}`,
+                `${target.adress}`, 
+                `${target.additional}`,
+                `${target.rest}`, 
+                `${dateToString(target.plannedDeadline)}`,
+                `${target.orderStatus}`,
+                `${target._id}`,
+                `${target.images}`,
+                `${target.fabricStatus}`,
+                `${target.coverStatus}`,
+                `${target.frameStatus}`,
+            ]
+            ] },
+        });
+
+        console.log(archive.status)
+
+        if (archive.status === 200) {
+            await sheets.spreadsheets.batchUpdate({
+                spreadsheetId,
+                resource: request
+            });
+        } else {
+            console.error('Failed to archive order:', archive.status);
+        }
+
+        res.status(200).send('ok');
+    } catch (error) {
+        console.log(error)
+        next(error);
+    }
+};
+
 async function deleteOrder(req, res, next) {
 
     const { id } = req.body;
@@ -346,4 +443,4 @@ async function deleteOrder(req, res, next) {
     }
 };
 
-module.exports = { getAllOrders, addOrder, updateOrder, deleteOrder };
+module.exports = { getAllOrders, addOrder, updateOrder, archiveOrder, deleteOrder };
