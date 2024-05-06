@@ -79,6 +79,9 @@ async function getOne(req, res, next) {
   try {
 
   const collection = await Collection.findById(id).exec();
+  if (collection === null) {
+    res.status(404).send({"message": "not found"})
+  }
   res.status(200).send({ collection });
 
   } catch(error) {
