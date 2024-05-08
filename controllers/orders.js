@@ -99,8 +99,9 @@ async function getAllOrders(req, res, next) {
         let range = 'Лист1!A2:V';
         let organization = 'misazh';
         let orders = await getOrdersFromSheets(client, spreadsheetId, range, organization);
-        if (orders.length && orders.length !== 0) {
-            allOrdersArray.push(...orders)};
+        if (orders && orders.length !== 0) {
+            allOrdersArray.push(...orders)
+        };
     };
 
     if (access.mebTown) {
@@ -108,7 +109,7 @@ async function getAllOrders(req, res, next) {
         let range = 'Лист1!A2:V';
         let organization = 'mebtown';
         let orders = await getOrdersFromSheets(client, spreadsheetId, range, organization);
-        if (orders.length && orders.length !== 0) {
+        if (orders && orders.length !== 0) {
             allOrdersArray.push(...orders)};
     };
 
@@ -117,7 +118,7 @@ async function getAllOrders(req, res, next) {
         let range = 'Лист1!A2:V';
         let organization = 'homeis';
         let orders = await getOrdersFromSheets(client, spreadsheetId, range, organization);
-        if (orders.length && orders.length !== 0) {
+        if (orders && orders.length !== 0) {
             allOrdersArray.push(...orders)};
     };
 
@@ -126,7 +127,7 @@ async function getAllOrders(req, res, next) {
         let range = 'Лист1!A2:V';
         let organization = 'yura';
         let orders = await getOrdersFromSheets(client, spreadsheetId, range, organization);
-        if (orders.length && orders.length !== 0) {
+        if (orders && orders.length !== 0) {
             allOrdersArray.push(...orders)};
     };
 
@@ -135,7 +136,7 @@ async function getAllOrders(req, res, next) {
         let range = 'Лист1!A2:V';
         let organization = 'sweethome';
         let orders = await getOrdersFromSheets(client, spreadsheetId, range, organization);
-        if (orders.length && orders.length !== 0) {
+        if (orders && orders.length !== 0) {
             allOrdersArray.push(...orders)};
     };
 
@@ -144,7 +145,7 @@ async function getAllOrders(req, res, next) {
         let range = 'замовлення !A2:V';
         let organization = 'millini';
         let orders = await getOrdersFromSheets(client, spreadsheetId, range, organization);
-        if (orders.length && orders.length !== 0) {
+        if (orders && orders.length !== 0) {
             allOrdersArray.push(...orders)};
     };
 
