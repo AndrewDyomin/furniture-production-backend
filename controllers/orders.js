@@ -332,7 +332,7 @@ async function archiveOrder(req, res, next) {
         const organization = _id.slice(0, _id.indexOf('.'));
         let spreadsheetId = '';
         let row = '';
-        let newRow = `готово!A2:V`
+        let newRow = `готово!A2:S`
         let range = '';
         let order = {};
         let target = {};
@@ -381,8 +381,6 @@ async function archiveOrder(req, res, next) {
             }
         }
 
-        console.log(newRow, target)
-
         const archive = await sheets.spreadsheets.values.append({
             spreadsheetId,
             range: newRow,
@@ -413,8 +411,6 @@ async function archiveOrder(req, res, next) {
             ]
             ] },
         });
-
-        console.log(archive.status)
 
         if (archive.status === 200) {
             await sheets.spreadsheets.batchUpdate({
