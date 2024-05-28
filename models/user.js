@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
   },
   organization: {
     type: String,
-    default: null,
+    default: "demo",
   },
   token: {
     type: String,
@@ -52,6 +52,10 @@ const userSchema = new mongoose.Schema({
       misazh: {
         type: Boolean,
         default: false,
+      },
+      demo: {
+        type: Boolean,
+        default: true,
       }
   },
   name: {
