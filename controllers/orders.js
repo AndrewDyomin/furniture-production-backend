@@ -4,6 +4,7 @@ require("dotenv").config();
 const Order = require("../models/order");
 const updateSheets = require("../helpers/updateSheets");
 const { google } = require("googleapis");
+const sendMail = require("../helpers/sendMail");
 
 function dateToString(date) {
   const d = new Date(date);
@@ -373,6 +374,21 @@ async function updateOrder(req, res, next) {
       const order = orders[index];
       if (order._id === _id) {
         row = `${range.slice(0, range.indexOf("!"))}!A${index + 2}:V`;
+        if (order.orderStatus !== 'TRUE' && orderStatus === 'TRUE') {
+          const letterTitle = `Ваше замовлення №${number} готове`;
+          const letterHtml = `
+            <h1>${number}</h1>
+            <h3>${group} ${name}</h3>
+            <p>ткань: ${fabric}</p>
+            <p>опис: ${description}</p>
+            <p>дата замовлення: ${dateOfOrder}</p>
+            <p>адреса доставки: ${adress}</p>
+            <p>залишок: ${rest}</p>
+            <p>дозавантаження: ${additional}</p>
+            <b>планова дата: ${plannedDeadline}</b>
+            `;
+          sendMail(req.user.user.email, letterTitle, letterHtml);
+        }
       }
     }
 
