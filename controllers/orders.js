@@ -2,6 +2,7 @@ const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
 require("dotenv").config();
 const Order = require("../models/order");
+const User = require("../models/user");
 const updateSheets = require("../helpers/updateSheets");
 const { google } = require("googleapis");
 const sendMail = require("../helpers/sendMail");
@@ -375,6 +376,7 @@ async function updateOrder(req, res, next) {
       if (order._id === _id) {
         row = `${range.slice(0, range.indexOf("!"))}!A${index + 2}:V`;
         if (order.orderStatus !== 'TRUE' && orderStatus === 'TRUE') {
+          const owner = await User.find({ name: `${dealer}` }).exec();
           const letterTitle = `Ваше замовлення №${number} готове`;
           const letterHtml = `
             <h1>${number}</h1>
@@ -387,7 +389,7 @@ async function updateOrder(req, res, next) {
             <p>дозавантаження: ${additional}</p>
             <b>планова дата: ${plannedDeadline}</b>
             `;
-          sendMail(req.user.user.email, letterTitle, letterHtml);
+          sendMail(owner[0].email, letterTitle, letterHtml);
         }
       }
     }
