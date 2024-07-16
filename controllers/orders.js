@@ -7,6 +7,7 @@ const updateSheets = require("../helpers/updateSheets");
 const { google } = require("googleapis");
 const puppeteer = require("puppeteer");
 const sendMail = require("../helpers/sendMail");
+const fs = require("node:fs/promises")
 
 function dateToString(date) {
   const d = new Date(date);
@@ -128,9 +129,24 @@ async function generatePdf(name, number, dateOfOrder, innerPrice) {
     `
   );
 
-  await page.pdf({
-    path: `tmp/ПЕЧАТЬ расх-${number}-${name}.pdf`,
+  // await page.pdf({
+  //   path: `tmp/ПЕЧАТЬ расх-${number}-${name}.pdf`,
+  //   format: "A4",
+  // });
+
+  const document = await page.pdf({
     format: "A4",
+  });
+
+  const pdfFilePath = '/tmp/ПЕЧАТЬ расх-${number}-${name}.pdf';
+
+  fs.writeFile(pdfFilePath, document, (err) => {
+    if (err) {
+      console.error('Error writing PDF file:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.send('PDF generated successfully');
+    }
   });
 
   await browser.close();
