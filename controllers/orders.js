@@ -23,7 +23,8 @@ async function generatePdf(name, number, dateOfOrder, innerPrice) {
   console.log('Puppeteer launch new browser')
   const browser = await puppeteer.launch({
     headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    dumpio: true,
+    // args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
   console.log('new page')
   const page = await browser.newPage();
@@ -141,7 +142,7 @@ async function generatePdf(name, number, dateOfOrder, innerPrice) {
   });
 
   const pdfFilePath = '/tmp/ПЕЧАТЬ расх-${number}-${name}.pdf';
-  
+
   console.log('write.file')
   fs.writeFile(pdfFilePath, document, (err) => {
     if (err) {
