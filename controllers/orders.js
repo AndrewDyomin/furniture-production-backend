@@ -20,11 +20,12 @@ function dateToString(date) {
 
 async function generatePdf(name, number, dateOfOrder, innerPrice) {
   const date = new Date();
+  console.log('Puppeteer launch new browser')
   const browser = await puppeteer.launch({
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
-
+  console.log('new page')
   const page = await browser.newPage();
 
   await page.setContent(
@@ -134,12 +135,14 @@ async function generatePdf(name, number, dateOfOrder, innerPrice) {
   //   format: "A4",
   // });
 
+  console.log('create document')
   const document = await page.pdf({
     format: "A4",
   });
 
   const pdfFilePath = '/tmp/ПЕЧАТЬ расх-${number}-${name}.pdf';
-
+  
+  console.log('write.file')
   fs.writeFile(pdfFilePath, document, (err) => {
     if (err) {
       console.error('Error writing PDF file:', err);
@@ -530,7 +533,9 @@ async function updateOrder(req, res, next) {
             <p>дозавантаження: ${additional}</p>
             <b>планова дата: ${plannedDeadline}</b>
             `;
+            console.log('call generatePdf()')
           await generatePdf(name, number, dateOfOrder, innerPrice);
+          console.log('call sendMail()')
           await sendMail(owner[0].email, letterTitle, letterHtml, number, name);
         }
       }
