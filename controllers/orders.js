@@ -1,13 +1,10 @@
-const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
 require("dotenv").config();
 const Order = require("../models/order");
 const User = require("../models/user");
 const updateSheets = require("../helpers/updateSheets");
 const { google } = require("googleapis");
-const puppeteer = require("puppeteer");
 const sendMail = require("../helpers/sendMail");
-const fs = require("node:fs/promises");
 const htmlToPdf = require("html-pdf-node");
 
 function dateToString(date) {
@@ -21,136 +18,6 @@ function dateToString(date) {
 
 async function generatePdf(name, number, dateOfOrder, innerPrice) {
   const date = new Date();
-  // const browser = await puppeteer.launch({
-  //   headless: true,
-  //   dumpio: true,
-  //   // args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  // });
-  // const page = await browser.newPage();
-
-  // await page.setContent(
-  //   `<div style="padding: 20px">
-  //     <div style="display: flex;">
-  //       <div style="width: 100px">
-  //         <p>Постачальник</p>
-  //       </div>
-  //       <div style="margin-left: 20px">
-  //         <p>ТОВ "Місаж Компані"</br>
-  //         ЄДРПОУ 38212854, тел. 0994144793</br>
-  //         Р/р UA963003460000026004020722201 в АТ АЛЬФА-БАНК</br>
-  //         ІПН 382128526529, номер свідоцтва 200044753</br>
-  //         Адреса м.Київ, вул.Братиславська 52</br></p>
-  //       </div>
-  //     </div>
-  //     <div style="display: flex;">
-  //       <div style="width: 100px">
-  //         <p>Одержувач</p>
-  //       </div>
-  //       <div style="margin-left: 20px">
-  //         <p>тел.</p>
-  //       </div>
-  //     </div>
-  //     <div style="display: flex;">
-  //       <div style="width: 100px">
-  //         <p>Платник</p>
-  //       </div>
-  //       <div style="margin-left: 20px">
-  //         <p>той самий</p>
-  //       </div>
-  //     </div>
-  //     <div style="display: flex;">
-  //       <div style="width: 100px">
-  //         <p>Замовлення</p> 
-  //       </div>
-  //       <div style="margin-left: 20px">
-  //         <p>№ ${number} від ${dateOfOrder}</p>
-  //       </div>
-  //     </div>
-  //     <div>
-  //       <div>
-  //         <p>Умова продажу:</p>
-  //       </div>
-  //     </div>
-  //     <h2 style="text-align: center;">Видаткова накладна № ${number}</br>від ${date.getDate() < 10 ? "0" + date.getDate() : date.getDate()}.${date.getMonth() < 10 ? "0" + Number(date.getMonth() + 1) : Number(date.getMonth() + 1)}.${date.getFullYear()} р.</h2>
-  //     <table style="border-collapse:collapse; margin: 5px;" cellspacing="0">
-  //       <tr style="height:12pt">
-  //       <td style="width:26pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" bgcolor="#BFBFBF">
-  //       <p class="s2" style="padding-left: 7pt;text-indent: 0pt;line-height: 11pt;text-align: left;">№</p>
-  //       </td><td style="width:219pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" bgcolor="#BFBFBF">
-  //       <p class="s2" style="text-indent: 0pt;line-height: 11pt;text-align: center;">Товар</p>
-  //       </td><td style="width:23pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" bgcolor="#BFBFBF">
-  //       <p class="s2" style="text-indent: 0pt;line-height: 11pt;text-align: center;">Од.</p>
-  //       </td><td style="width:78pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" bgcolor="#BFBFBF">
-  //       <p class="s2" style="padding-left: 16pt;text-indent: 0pt;line-height: 11pt;text-align: left;">Кількість</p>
-  //       </td><td style="width:78pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" bgcolor="#BFBFBF">
-  //       <p class="s2" style="padding-left: 6pt;text-indent: 0pt;line-height: 11pt;text-align: left;">Ціна без ПДВ</p>
-  //       </td><td style="width:78pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" bgcolor="#BFBFBF">
-  //       <p class="s2" style="padding-right: 3pt;text-indent: 0pt;line-height: 11pt;text-align: right;">Сума без ПДВ</p>
-  //       </td></tr><tr style="height:12pt"><td style="width:26pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-  //       <p class="s3" style="padding-right: 1pt;text-indent: 0pt;text-align: right;">1</p>
-  //       </td><td style="width:219pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-  //       <p class="s4" style="padding-left: 2pt;text-indent: 0pt;line-height: 10pt;text-align: left;">${name}</p>
-  //       </td><td style="width:23pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-  //       <p class="s4" style="text-indent: 0pt;line-height: 10pt;text-align: center;">шт</p>
-  //       </td><td style="width:78pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-  //       <p class="s4" style="padding-left: 50pt;text-indent: 0pt;line-height: 10pt;text-align: left;">1,000</p>
-  //       </td><td style="width:78pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-  //       <p class="s4" style="padding-left: 39pt;text-indent: 0pt;line-height: 10pt;text-align: left;">${innerPrice}</p>
-  //       </td><td style="width:78pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-  //       <p class="s4" style="padding-right: 1pt;text-indent: 0pt;line-height: 10pt;text-align: right;">${innerPrice}</p>
-  //       </td></tr><tr style="height:12pt"><td style="width:26pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-  //       <p class="s3" style="padding-right: 1pt;text-indent: 0pt;text-align: right;">2</p>
-  //       </td><td style="width:219pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"><p style="text-indent: 0pt;text-align: left;"><br/></p>
-  //       </td><td style="width:23pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-  //       <p class="s4" style="text-indent: 0pt;line-height: 11pt;text-align: center;">шт</p>
-  //       </td><td style="width:78pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-  //       <p style="text-indent: 0pt;text-align: left;"><br/></p>
-  //       </td><td style="width:78pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-  //       <p style="text-indent: 0pt;text-align: left;"><br/></p>
-  //       </td><td style="width:78pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-  //       <p class="s4" style="padding-right: 1pt;text-indent: 0pt;line-height: 11pt;text-align: right;">0,00</p>
-  //       </td></tr><tr style="height:14pt"><td style="width:424pt;border-top-style:solid;border-top-width:1pt;border-right-style:solid;border-right-width:1pt" colspan="5"><p class="s5" style="padding-right: 4pt;text-indent: 0pt;line-height: 12pt;text-align: right;">Разом без ПДВ:</p>
-  //       </td><td style="width:78pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-  //       <p class="s5" style="padding-right: 1pt;text-indent: 0pt;line-height: 12pt;text-align: right;">${innerPrice}</p>
-  //       </td></tr>
-  //     </table>
-  //     <p style="padding-left: 34pt;">Місце складання:</p>
-  //     <div style="display: flex;">
-  //         <div>
-  //             <p style="padding-left: 34pt;">Від постачальника*_________________</p>
-  //             <p style="margin-left: 150px">директор Хамучинський М.Я.</p>
-  //         </div>
-  //         <div style="margin-left: 100px">
-  //           <p>Отримав(ла)_________________</p>
-  //           <p style="margin-left: 130px;">за дов. № від . .</p>
-  //         </div>
-  //     </div>
-  //     <p class="s9" style="padding-top: 5pt;padding-left: 34pt;text-indent: 0pt;text-align: left;">* Відповідальний за здійснення господарської операції і правильність її оформлення</p>
-  //   </div>
-  //   `
-  // );
-
-  // // await page.pdf({
-  // //   path: `tmp/ПЕЧАТЬ расх-${number}-${name}.pdf`,
-  // //   format: "A4",
-  // // });
-
-  // const document = await page.pdf({
-  //   format: "A4",
-  // });
-
-  // const pdfFilePath = '/tmp/ПЕЧАТЬ расх-${number}-${name}.pdf';
-
-  // fs.writeFile(pdfFilePath, document, (err) => {
-  //   if (err) {
-  //     console.error('Error writing PDF file:', err);
-  //     res.status(500).send('Internal Server Error');
-  //   } else {
-  //     res.send('PDF generated successfully');
-  //   }
-  // });
-
-  // await browser.close();
   try {
   let options = { format: 'A4', path: `tmp/ПЕЧАТЬ расх-${number}-${name}.pdf`, args: ['--no-sandbox', '--disable-setuid-sandbox'] }
   let file = { content: `<div style="padding: 20px">
