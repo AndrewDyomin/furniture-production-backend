@@ -188,7 +188,7 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
       const dateOfOrderParts = dateOfOrderString.split(".");
       const deadlineParts =
         !row[15] || row[15] === ""
-          ? [`${date.getDate()}`, `${date.getMonth()}`, `${date.getFullYear}`]
+          ? [`${date.getDate()}`, `${date.getMonth() + 1}`, `${date.getFullYear}`]
           : deadlineString.split(".");
       const dateOfOrderObject = new Date(
         `${dateOfOrderParts[2]}-${dateOfOrderParts[1]}-${dateOfOrderParts[0]}`
@@ -229,7 +229,7 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
         let updateRange = `${sheetName}!R${index + 2}`;
         await updateSheets(sheets, spreadsheetId, updateRange, id);
         order._id = id;
-      }
+      };
 
       orders.push(order);
     }

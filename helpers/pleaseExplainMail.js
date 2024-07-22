@@ -52,7 +52,7 @@ async function pleaseExplainMail(recipient, errors, organization) {
 
     transporter
       .sendMail(emailOptions)
-      .then(() => {console.log(`Mail to ${addresses} sended`)})
+      .then(() => {console.log(`Letter to ${addresses} sended`)})
       .catch((err) => console.log(err));
   } catch (err) {
     console.log(err);
