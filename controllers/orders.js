@@ -5,6 +5,7 @@ const User = require("../models/user");
 const updateSheets = require("../helpers/updateSheets");
 const { google } = require("googleapis");
 const sendMail = require("../helpers/sendMail");
+const pleaseExplainMail = require("../helpers/pleaseExplainMail");
 const htmlToPdf = require("html-pdf-node");
 
 function dateToString(date) {
@@ -19,8 +20,13 @@ function dateToString(date) {
 async function generatePdf(name, number, dateOfOrder, innerPrice) {
   const date = new Date();
   try {
-  let options = { format: 'A4', path: `tmp/ПЕЧАТЬ расх-${number}-${name}.pdf`, args: ['--no-sandbox', '--disable-setuid-sandbox'] }
-  let file = { content: `<div style="padding: 20px">
+    let options = {
+      format: "A4",
+      path: `tmp/ПЕЧАТЬ расх-${number}-${name}.pdf`,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    };
+    let file = {
+      content: `<div style="padding: 20px">
       <div style="display: flex;">
         <div style="width: 100px">
           <p>Постачальник</p>
@@ -62,7 +68,13 @@ async function generatePdf(name, number, dateOfOrder, innerPrice) {
           <p>Умова продажу:</p>
         </div>
       </div>
-      <h2 style="text-align: center;">Видаткова накладна № ${number}</br>від ${date.getDate() < 10 ? "0" + date.getDate() : date.getDate()}.${date.getMonth() < 10 ? "0" + Number(date.getMonth() + 1) : Number(date.getMonth() + 1)}.${date.getFullYear()} р.</h2>
+      <h2 style="text-align: center;">Видаткова накладна № ${number}</br>від ${
+        date.getDate() < 10 ? "0" + date.getDate() : date.getDate()
+      }.${
+        date.getMonth() < 10
+          ? "0" + Number(date.getMonth() + 1)
+          : Number(date.getMonth() + 1)
+      }.${date.getFullYear()} р.</h2>
       <table style="border-collapse:collapse; margin: 5px;" cellspacing="0">
         <tr style="height:12pt">
         <td style="width:26pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt" bgcolor="#BFBFBF">
@@ -118,11 +130,11 @@ async function generatePdf(name, number, dateOfOrder, innerPrice) {
       </div>
       <p class="s9" style="padding-top: 5pt;padding-left: 34pt;text-indent: 0pt;text-align: left;">* Відповідальний за здійснення господарської операції і правильність її оформлення</p>
     </div>
-    ` }
-  await htmlToPdf.generatePdf(file, options);
-
+    `,
+    };
+    await htmlToPdf.generatePdf(file, options);
   } catch (error) {
-    next(error)
+    next(error);
   }
 }
 
@@ -153,6 +165,20 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
         !row[11] ||
         !row[15]
       ) {
+        let criticalRows = [row[0], row[1], row[11], row[15]];
+        let fieldNames = ["Группа товару", "Розмір", "Дата замовлення", "Планова дата готовності"];
+        let errors = [];
+        criticalRows.forEach((el, index) => {
+          if (!el || el === "") {
+            errors.push(fieldNames[index]);
+          }
+        });
+        let owner = await User.find({ name: `${row[9]}` }).exec();
+        if (!owner || owner === undefined || owner.length < 1) {
+          owner = [{ email: "dyomin.andrew1@gmail.com" }];
+        }
+
+        await pleaseExplainMail(owner[0].email, errors, row[9]);
         continue;
       }
 
@@ -410,6 +436,9 @@ async function addOrder(req, res, next) {
             ``,
             ``,
             `${order.images}`,
+            ``,
+            ``,
+            ``,
           ],
         ],
       },
@@ -488,7 +517,7 @@ async function updateOrder(req, res, next) {
         if (order.orderStatus !== "TRUE" && orderStatus === "TRUE") {
           let owner = await User.find({ name: `${dealer}` }).exec();
           if (!owner || owner === undefined || owner.length < 1) {
-            owner = [{email: 'dyomin.andrew1@gmail.com'}]
+            owner = [{ email: "dyomin.andrew1@gmail.com" }];
           }
           const letterTitle = `Ваше замовлення №${number} готове`;
           const letterHtml = `
@@ -502,9 +531,9 @@ async function updateOrder(req, res, next) {
             <p>дозавантаження: ${additional}</p>
             <b>планова дата: ${plannedDeadline}</b>
             `;
-          
+
           await generatePdf(name, number, dateOfOrder, innerPrice);
-          
+
           await sendMail(owner[0].email, letterTitle, letterHtml, number, name);
         }
       }
