@@ -16,7 +16,7 @@ function googleSheetsApi(req, res, next) {
         client.authorize(function(err, tokens) {
             if (err) {
                 console.log(err);
-                return;
+                
             } else {
                 console.log('Google sheets connection successfully');
             }

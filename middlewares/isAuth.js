@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 
 function isAuth(req, res, next) {
-  const authHeader = req.headers["authorization"];
+  const authHeader = req.headers.authorization;
 
   if (typeof authHeader === "undefined") {
     return res.status(401).json({ "message": "Not authorized" });

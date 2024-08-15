@@ -8,7 +8,7 @@ const IMGBB_API_KEY = process.env.IMGBB_API_KEY;
 
 async function add(req, res, next) {
   const files = req.files;
-  let imageLinks = [];
+  const imageLinks = [];
 
   try {
     for (const file of files) {
@@ -25,7 +25,6 @@ async function add(req, res, next) {
       fs.unlink(file.path, (err) => {
         if (err) {
           console.error('Error', err);
-          return;
         }});
 
     }
@@ -118,7 +117,6 @@ async function update(req, res, next) {
       fs.unlink(file.path, (err) => {
         if (err) {
           console.error('Error', err);
-          return;
         }});
 
     }

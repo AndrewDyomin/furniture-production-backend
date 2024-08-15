@@ -20,12 +20,12 @@ function dateToString(date) {
 async function generatePdf(name, number, dateOfOrder, innerPrice) {
   const date = new Date();
   try {
-    let options = {
+    const options = {
       format: "A4",
       path: `tmp/ПЕЧАТЬ расх-${number}-${name}.pdf`,
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     };
-    let file = {
+    const file = {
       content: `<div style="padding: 20px">
       <div style="display: flex;">
         <div style="width: 100px">
@@ -134,7 +134,7 @@ async function generatePdf(name, number, dateOfOrder, innerPrice) {
     };
     await htmlToPdf.generatePdf(file, options);
   } catch (error) {
-    next(error);
+    console.log(error);
   }
 }
 
@@ -165,9 +165,9 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
         !row[11] ||
         !row[15]
       ) {
-        let criticalRows = [row[0], row[1], row[11], row[15]];
-        let fieldNames = ["Группа товару", "Розмір", "Дата замовлення", "Планова дата готовності"];
-        let errors = [];
+        const criticalRows = [row[0], row[1], row[11], row[15]];
+        const fieldNames = ["Группа товару", "Розмір", "Дата замовлення", "Планова дата готовності"];
+        const errors = [];
         criticalRows.forEach((el, index) => {
           if (!el || el === "") {
             errors.push(fieldNames[index]);
@@ -198,7 +198,7 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
       );
       const imagesArray = !row[18] || row[18] === "" ? [] : row[18].split(",");
 
-      let order = {
+      const order = {
         group: row[0],
         size: row[1],
         name: row[2],
@@ -225,8 +225,8 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
 
       if (!row[17] || row[17] === "") {
         const id = [`${organization}.${uuidv4()}`];
-        let sheetName = range.slice(0, range.indexOf("!"));
-        let updateRange = `${sheetName}!R${index + 2}`;
+        const sheetName = range.slice(0, range.indexOf("!"));
+        const updateRange = `${sheetName}!R${index + 2}`;
         await updateSheets(sheets, spreadsheetId, updateRange, id);
         order._id = id;
       };
@@ -243,13 +243,13 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
 async function getAllOrders(req, res, next) {
   const { access } = req.user.user;
   const client = req.sheets.client;
-  let allOrdersArray = [];
+  const allOrdersArray = [];
 
   if (access.demo) {
-    let spreadsheetId = process.env.DEMO_SHEET_LINK;
-    let range = "Лист1!A2:V";
-    let organization = "demo";
-    let orders = await getOrdersFromSheets(
+    const spreadsheetId = process.env.DEMO_SHEET_LINK;
+    const range = "Лист1!A2:V";
+    const organization = "demo";
+    const orders = await getOrdersFromSheets(
       client,
       spreadsheetId,
       range,
@@ -261,10 +261,10 @@ async function getAllOrders(req, res, next) {
   }
 
   if (access.misazh) {
-    let spreadsheetId = process.env.MISAZH_SHEET_LINK;
-    let range = "Лист1!A2:V";
-    let organization = "misazh";
-    let orders = await getOrdersFromSheets(
+    const spreadsheetId = process.env.MISAZH_SHEET_LINK;
+    const range = "Лист1!A2:V";
+    const organization = "misazh";
+    const orders = await getOrdersFromSheets(
       client,
       spreadsheetId,
       range,
@@ -276,10 +276,10 @@ async function getAllOrders(req, res, next) {
   }
 
   if (access.mebTown) {
-    let spreadsheetId = process.env.MEBTOWN_SHEET_LINK;
-    let range = "Лист1!A2:V";
-    let organization = "mebtown";
-    let orders = await getOrdersFromSheets(
+    const spreadsheetId = process.env.MEBTOWN_SHEET_LINK;
+    const range = "Лист1!A2:V";
+    const organization = "mebtown";
+    const orders = await getOrdersFromSheets(
       client,
       spreadsheetId,
       range,
@@ -291,10 +291,10 @@ async function getAllOrders(req, res, next) {
   }
 
   if (access.homeIs) {
-    let spreadsheetId = process.env.HOMEIS_SHEET_LINK;
-    let range = "Лист1!A2:V";
-    let organization = "homeis";
-    let orders = await getOrdersFromSheets(
+    const spreadsheetId = process.env.HOMEIS_SHEET_LINK;
+    const range = "Лист1!A2:V";
+    const organization = "homeis";
+    const orders = await getOrdersFromSheets(
       client,
       spreadsheetId,
       range,
@@ -306,10 +306,10 @@ async function getAllOrders(req, res, next) {
   }
 
   if (access.other) {
-    let spreadsheetId = process.env.OTHER_SHEET_LINK;
-    let range = "Лист1!A2:V";
-    let organization = "yura";
-    let orders = await getOrdersFromSheets(
+    const spreadsheetId = process.env.OTHER_SHEET_LINK;
+    const range = "Лист1!A2:V";
+    const organization = "yura";
+    const orders = await getOrdersFromSheets(
       client,
       spreadsheetId,
       range,
@@ -321,10 +321,10 @@ async function getAllOrders(req, res, next) {
   }
 
   if (access.sweetHome) {
-    let spreadsheetId = process.env.SWEET_HOME_SHEET_LINK;
-    let range = "Лист1!A2:V";
-    let organization = "sweethome";
-    let orders = await getOrdersFromSheets(
+    const spreadsheetId = process.env.SWEET_HOME_SHEET_LINK;
+    const range = "Лист1!A2:V";
+    const organization = "sweethome";
+    const orders = await getOrdersFromSheets(
       client,
       spreadsheetId,
       range,
@@ -336,10 +336,10 @@ async function getAllOrders(req, res, next) {
   }
 
   if (access.millini) {
-    let spreadsheetId = process.env.MILLINI_SHEET_LINK;
-    let range = "замовлення !A2:V";
-    let organization = "millini";
-    let orders = await getOrdersFromSheets(
+    const spreadsheetId = process.env.MILLINI_SHEET_LINK;
+    const range = "замовлення !A2:V";
+    const organization = "millini";
+    const orders = await getOrdersFromSheets(
       client,
       spreadsheetId,
       range,
@@ -374,16 +374,16 @@ async function getAllOrders(req, res, next) {
 async function addOrder(req, res, next) {
   const user = req.user.user;
   const today = new Date();
-  let month = today.getMonth() + 1;
-  let plannedDate = new Date();
+  const month = today.getMonth() + 1;
+  const plannedDate = new Date();
   plannedDate.setDate(plannedDate.getDate() + Number(req.body.deadline));
-  let plannedMonth = plannedDate.getMonth() + 1;
+  const plannedMonth = plannedDate.getMonth() + 1;
   const client = req.sheets.client;
   const sheets = google.sheets({ version: "v4", auth: client });
 
   let spreadsheetId = "";
   let range = "Лист1!A2:S";
-  let order = req.body;
+  const order = req.body;
   order.dealer = user.name;
   order.dateOfOrder = today;
   order.plannedDeadline = `${plannedDate.getDate()}.${plannedMonth

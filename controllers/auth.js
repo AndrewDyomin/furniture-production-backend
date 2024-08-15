@@ -25,7 +25,7 @@ async function register(req, res, next) {
     const passwordHash = await bcrypt.hash(password, 10);
     const avatarURL = gravatar.url(email);
 
-    const newUser = await User.create({ name, email, password: passwordHash, avatarURL });
+    await User.create({ name, email, password: passwordHash, avatarURL });
     user = await User.findOne({ email }).exec();
 
     const token = jwt.sign(

@@ -5,7 +5,7 @@ const { google } = require("googleapis");
 // const multer = require("multer");
 
 async function uploadToDisk(req, res, next) {
-  let imageLinks = [];
+  const imageLinks = [];
   // start autorization ----------------------
   try {
     const client = new google.auth.JWT(
@@ -18,7 +18,7 @@ async function uploadToDisk(req, res, next) {
     client.authorize(function (err, tokens) {
       if (err) {
         console.log(err);
-        return;
+        
       } else {
         console.log("Google drive connection successfully");
       }
@@ -53,7 +53,7 @@ async function uploadToDisk(req, res, next) {
       fs.unlink(file.path, (err) => {
         if (err) {
           console.error("Error", err);
-          return;
+          
         }
       });
     }
