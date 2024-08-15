@@ -68,7 +68,7 @@ async function login(req, res, next) {
     const token = jwt.sign(
       { id: user._id, name: user.name },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "20d" }
     );
 
     await User.findByIdAndUpdate(user._id, { token }).exec();
