@@ -13,6 +13,10 @@ const modelSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+  categories: {
+    type: String,
+    default: "",
+  },
   sleepingArea: {
     type: String,
     default: "",
