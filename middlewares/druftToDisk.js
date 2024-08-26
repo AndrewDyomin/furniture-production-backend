@@ -32,7 +32,7 @@ async function myagkofToDisk(req, res, next) {
     for (const file of files) {
       const fileMetadata = {
         name: file.filename,
-        parents: [process.env.MYAGKOF_FOTO_FOLDER],
+        parents: [process.env.DRUFT_FOTO_FOLDER],
       };
       const media = {
         mimeType: "image/jpeg",
