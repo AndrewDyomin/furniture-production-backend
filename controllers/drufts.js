@@ -11,7 +11,11 @@ async function add(req, res, next) {
         return res.status(409).json({ message: "Name in use" });
     }
 
-    druft = req.body;
+    druft = {
+      name: req.body.name,
+      description: req.body.description,
+      imageArrays: [{role: req.user.user.description, images: [...req.body.images]}],
+    }
 
     await Druft.create(druft);
   
@@ -22,9 +26,11 @@ async function add(req, res, next) {
   }
 
 async function remove(req, res, next) {
-    const { id } = req.body;
+  console.log('controller')
+  console.log(req.body)
+    const { data } = req.body;
   try {
-    await Druft.findByIdAndDelete(id)
+    await Druft.findByIdAndDelete(data)
 
     res.status(200).json({ message: "Druft was deleted" });
   } catch (error) {
@@ -62,9 +68,17 @@ async function getAll(req, res, next) {
 async function update(req, res, next) {
 
   const { _id, name, description, images } = req.body;
+  const role = req.user.user.description;
+
   
   try {
-    const updatedDruft = await Druft.findByIdAndUpdate(_id, { name, description, images }, { new: true }).exec();
+    await Druft.findOneAndUpdate(
+      { _id, "imageArrays.role": role },
+      { $set: { "imageArrays.$.images": images } },
+      { new: true }
+    );
+    
+    const updatedDruft = await Druft.findByIdAndUpdate(_id, { name, description }, { new: true }).exec();
 
     res.status(200).send(updatedDruft);
   } catch (error) {

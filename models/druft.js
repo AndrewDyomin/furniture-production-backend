@@ -1,5 +1,14 @@
 const mongoose = require("mongoose");
 
+const imageSchema = new mongoose.Schema({
+  role: {
+    type: String,
+  },
+  images: [{
+    type: String,
+  }],
+})
+
 const druftSchema = new mongoose.Schema({
   description: {
     type: String,
@@ -10,9 +19,7 @@ const druftSchema = new mongoose.Schema({
     required: [true, "Name is required"],
     unique: true,
   },
-  images: [{
-    type: String,
-  }],
+  imageArrays: [imageSchema],
 });
 
 module.exports = mongoose.model("Druft", druftSchema);

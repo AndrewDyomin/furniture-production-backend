@@ -28,7 +28,7 @@ app.use("/users", usersRoutes);
 app.use("/collections", collectionsRoutes);
 app.use("/components", componentsRoutes);
 app.use("/models", modelsRoutes);
-app.use("/drufts", druftsRoutes);
+app.use("/drufts", isAuth, druftsRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Not found" });
