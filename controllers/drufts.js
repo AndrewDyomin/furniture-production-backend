@@ -26,8 +26,6 @@ async function add(req, res, next) {
   }
 
 async function remove(req, res, next) {
-  console.log('controller')
-  console.log(req.body)
     const { data } = req.body;
   try {
     await Druft.findByIdAndDelete(data)
@@ -72,11 +70,20 @@ async function update(req, res, next) {
 
   
   try {
-    await Druft.findOneAndUpdate(
+    const updateAtRole = await Druft.findOneAndUpdate(
       { _id, "imageArrays.role": role },
       { $set: { "imageArrays.$.images": images } },
       { new: true }
     );
+
+    if (updateAtRole === null) {
+      const oldDruft = await Druft.findById(_id).exec();
+      await Druft.findByIdAndUpdate(
+        _id,
+        { imageArrays: [ ...oldDruft.imageArrays, { role, images }] },
+        { new: true }
+      );
+    }
     
     const updatedDruft = await Druft.findByIdAndUpdate(_id, { name, description }, { new: true }).exec();
 
