@@ -1,7 +1,6 @@
 const express = require("express");
 const { upload } = require("../../middlewares/upload");
 const DruftsController = require("../../controllers/drufts");
-// const isAuth = require("../../middlewares/isAuth");
 const druftToDisk = require("../../middlewares/druftToDisk");
 
 const router = express.Router();

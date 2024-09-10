@@ -11,6 +11,7 @@ const collectionsRoutes = require("./routes/api/collections");
 const componentsRoutes = require("./routes/api/components");
 const modelsRoutes = require("./routes/api/models");
 const druftsRoutes = require("./routes/api/drufts");
+const leadsRoutes = require("./routes/api/leads");
 const isAuth = require("./middlewares/isAuth");
 
 const app = express();
@@ -29,6 +30,7 @@ app.use("/collections", collectionsRoutes);
 app.use("/components", componentsRoutes);
 app.use("/models", modelsRoutes);
 app.use("/drufts", isAuth, druftsRoutes);
+app.use("/leads", leadsRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Not found" });
