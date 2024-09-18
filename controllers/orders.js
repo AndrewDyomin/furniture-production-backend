@@ -215,7 +215,7 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
         additional: row[13],
         rest: row[14],
         plannedDeadline: deadlineObject.toISOString(),
-        orderStatus: row[16],
+        orderStatus: row[16] || "",
         _id: row[17],
         images: imagesArray,
         fabricStatus: row[19] || "",
