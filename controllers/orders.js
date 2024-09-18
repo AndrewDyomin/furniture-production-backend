@@ -224,7 +224,7 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
       };
 
       if (!row[17] || row[17] === "") {
-        const id = [`${organization}.${uuidv4()}`];
+        const id = `${organization}.${uuidv4()}`;
         const sheetName = range.slice(0, range.indexOf("!"));
         const updateRange = `${sheetName}!R${index + 2}`;
         await updateSheets(sheets, spreadsheetId, updateRange, id);
