@@ -382,7 +382,7 @@ async function addOrder(req, res, next) {
   const sheets = google.sheets({ version: "v4", auth: client });
 
   let spreadsheetId = "";
-  let range = "Лист1!A2:S";
+  let range = "Лист1!A2:V";
   const order = req.body;
   order.dealer = user.name;
   order.dateOfOrder = today;
@@ -404,7 +404,7 @@ async function addOrder(req, res, next) {
     spreadsheetId = process.env.DEMO_SHEET_LINK;
   } else if (user.organization === "millini") {
     spreadsheetId = process.env.MILLINI_SHEET_LINK;
-    range = "замовлення !A2:S";
+    range = "замовлення !A2:V";
   }
 
   try {
