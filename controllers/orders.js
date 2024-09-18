@@ -227,7 +227,7 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
         const id = `${organization}.${uuidv4()}`;
         const sheetName = range.slice(0, range.indexOf("!"));
         const updateRange = `${sheetName}!R${index + 2}`;
-        await updateSheets(sheets, spreadsheetId, updateRange, id);
+        await updateSheets(sheets, spreadsheetId, updateRange, [id]);
         order._id = id;
       };
 
