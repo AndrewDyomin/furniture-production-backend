@@ -166,7 +166,12 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
         !row[15]
       ) {
         const criticalRows = [row[0], row[1], row[11], row[15]];
-        const fieldNames = ["Группа товару", "Розмір", "Дата замовлення", "Планова дата готовності"];
+        const fieldNames = [
+          "Группа товару",
+          "Розмір",
+          "Дата замовлення",
+          "Планова дата готовності",
+        ];
         const errors = [];
         criticalRows.forEach((el, index) => {
           if (!el || el === "") {
@@ -188,7 +193,11 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
       const dateOfOrderParts = dateOfOrderString.split(".");
       const deadlineParts =
         !row[15] || row[15] === ""
-          ? [`${date.getDate()}`, `${date.getMonth() + 1}`, `${date.getFullYear}`]
+          ? [
+              `${date.getDate()}`,
+              `${date.getMonth() + 1}`,
+              `${date.getFullYear}`,
+            ]
           : deadlineString.split(".");
       const dateOfOrderObject = new Date(
         `${dateOfOrderParts[2]}-${dateOfOrderParts[1]}-${dateOfOrderParts[0]}`
@@ -229,7 +238,7 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
         const updateRange = `${sheetName}!R${index + 2}`;
         await updateSheets(sheets, spreadsheetId, updateRange, [id]);
         order._id = id;
-      };
+      }
 
       orders.push(order);
     }
@@ -520,7 +529,15 @@ async function updateOrder(req, res, next) {
             owner = [{ email: "dyomin.andrew1@gmail.com" }];
           }
           const letterTitle = `Ваше замовлення №${number} готове`;
-          const letterHtml = `
+          let letterHtml = '';
+          if (!innerPrice || innerPrice === "") {
+            letterHtml = `
+            <h1>${number}</h1>
+            <h3>${group} ${name}</h3>
+            <p>Ваше замовлення готове, але я не можу знайти вхідну ціну.</p>
+            `;
+          } else {
+            letterHtml = `
             <h1>${number}</h1>
             <h3>${group} ${name}</h3>
             <p>ткань: ${fabric}</p>
@@ -531,6 +548,7 @@ async function updateOrder(req, res, next) {
             <p>дозавантаження: ${additional}</p>
             <b>планова дата: ${plannedDeadline}</b>
             `;
+          }
 
           await generatePdf(name, number, dateOfOrder, innerPrice);
 
