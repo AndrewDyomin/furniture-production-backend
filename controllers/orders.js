@@ -183,7 +183,7 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
           owner = [{ email: "dyomin.andrew1@gmail.com" }];
         }
 
-        await pleaseExplainMail(owner[0].email, errors, row[9]);
+        await pleaseExplainMail(owner[0].email, errors, row[9], organization);
         continue;
       }
 

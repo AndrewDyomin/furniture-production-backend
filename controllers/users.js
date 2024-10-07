@@ -56,4 +56,18 @@ async function uploadAvatar(req, res, next) {
   }
 }
 
-module.exports = { getAvatar, uploadAvatar };
+async function getAll(req, res, next) {
+  try {
+    const user = await User.findById(req.user.user.id).exec();
+
+    if (user.description !== 'administrator') {
+      return res.status(200).send({ message: "Sorry. You do not have an access." });
+    }
+
+    res.send(user.avatarURL);
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { getAvatar, uploadAvatar, getAll };

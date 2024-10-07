@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 
-async function pleaseExplainMail(recipient, errors, organization) {
+async function pleaseExplainMail(recipient, errors, dealer, organization) {
   try {
     const errorsList = () => {
         if (errors.length > 1) {
@@ -26,8 +26,9 @@ async function pleaseExplainMail(recipient, errors, organization) {
     const letterTitle = `Не могу прочитать новый заказ`;
     const letterHtml = `
             <h3>Добрый день</h3>
-            <p>Я вижу что ${organization} добавил(а) новый заказ, но я не могу прочитать в нем некоторые поля.</p>
+            <p>Я вижу что ${dealer} добавил(а) новый заказ, но я не могу прочитать в нем некоторые поля.</p>
             ${errorsList()}
+            <p>Источник: ${organization}</p>
             <p>Помогите мне пожалуйста</p>
             `;
     const addresses = recipient === 'dyomin.andrew1@gmail.com' ? `${recipient}` : `${recipient}, dyomin.andrew1@gmail.com`;

@@ -7,7 +7,8 @@ const isValidAvatar = require("../../middlewares/isValidAvatar")
 
 const router = express.Router();
 
-router.get("/avatars", isAuth, UsersController.getAvatar)
+router.get("/avatars", isAuth, UsersController.getAvatar);
+router.get("/all", isAuth, UsersController.getAll)
 router.patch("/avatars", isAuth, upload.single("avatar"), isValidAvatar, UsersController.uploadAvatar)
 
 module.exports = router;
