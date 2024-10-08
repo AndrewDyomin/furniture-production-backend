@@ -71,4 +71,44 @@ async function getAll(req, res, next) {
   }
 }
 
-module.exports = { getAvatar, uploadAvatar, getAll };
+async function updateUser(req, res, next) {
+  try {
+    const user = await User.findById(req.user.user.id).exec();
+
+    if (user.description === 'administrator') {
+
+      const { _id, name, email, description, organization, access } = req.body;
+
+      await User.findByIdAndUpdate(_id, { name, email, description, organization, access }, { new: true }).exec();
+      
+      return res.status(200).send({ message: 'User was updated.' });
+    }
+
+    res.status(200).send({ message: "Sorry. You do not have an access." });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function deleteUser(req, res, next) {
+  try {
+    const user = await User.findById(req.user.user.id).exec();
+
+    if (user.description === 'administrator') {
+
+      const { _id } = req.body;
+
+      console.log(req.body)
+
+      await User.findByIdAndDelete(_id).exec();
+      
+      return res.status(200).send({ message: 'User was deleted.' });
+    }
+
+    res.status(200).send({ message: "Sorry. You do not have an access." });
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { getAvatar, uploadAvatar, getAll, updateUser, deleteUser };
