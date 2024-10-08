@@ -60,11 +60,12 @@ async function getAll(req, res, next) {
   try {
     const user = await User.findById(req.user.user.id).exec();
 
-    if (user.description !== 'administrator') {
-      return res.status(200).send({ message: "Sorry. You do not have an access." });
+    if (user.description === 'administrator') {
+      const usersArray = await User.find({}).exec();
+      return res.status(200).send({ usersArray });
     }
 
-    res.send(user.avatarURL);
+    res.status(200).send({ message: "Sorry. You do not have an access." });
   } catch (error) {
     next(error);
   }
