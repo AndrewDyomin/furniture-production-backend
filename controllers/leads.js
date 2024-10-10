@@ -1,11 +1,13 @@
 const Lead = require("../models/lead");
+const newLeadMail = require("../helpers/newLeadMail");
 
 async function add(req, res, next) {
   try {
     let lead = req.body;
-    console.log(lead)
 
-    await Lead.create(lead);
+    const newLead = await Lead.create(lead, { new: true }).exec();
+
+    newLeadMail(newLead);
 
     res.status(200).json({ message: "Lead was created" });
   } catch (error) {
