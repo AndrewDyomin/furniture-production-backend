@@ -5,7 +5,7 @@ async function add(req, res, next) {
   try {
     let lead = req.body;
 
-    const newLead = await Lead.create(lead, { new: true }).exec();
+    const newLead = await Lead.create(lead);
 
     newLeadMail(newLead);
 
