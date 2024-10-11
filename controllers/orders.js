@@ -139,6 +139,14 @@ async function generatePdf(name, number, dateOfOrder, innerPrice) {
 }
 
 async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
+  
+  if (
+    range == "ДОСТАВЛЕНІ -готові вироби !A2:V" ||
+    range == "готово!A2:V"
+  ) {
+  console.log('Fetch ', organization, ' orders')
+  }
+
   try {
     const sheets = google.sheets({ version: "v4", auth: client });
     const response = await sheets.spreadsheets.values.get({
@@ -150,7 +158,7 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
 
     const rows = response.data.values;
     if (!rows || rows.length === 0) {
-      console.log("No data found.");
+      console.log(organization, " No data found.");
       return orders;
     }
 
@@ -158,33 +166,56 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
       const row = rows[index];
 
       if (
-        !row[0] ||
-        row[0] === "" ||
-        !row[1] ||
-        row[1] === "" ||
-        !row[11] ||
-        !row[15]
+        range == "ДОСТАВЛЕНІ -готові вироби !A2:V" ||
+        range == "готово!A2:V"
       ) {
-        const criticalRows = [row[0], row[1], row[11], row[15]];
-        const fieldNames = [
-          "Группа товару",
-          "Розмір",
-          "Дата замовлення",
-          "Планова дата готовності",
-        ];
-        const errors = [];
-        criticalRows.forEach((el, index) => {
-          if (!el || el === "") {
-            errors.push(fieldNames[index]);
-          }
-        });
-        let owner = await User.find({ name: `${row[9]}` }).exec();
-        if (!owner || owner === undefined || owner.length < 1) {
-          owner = [{ email: "dyomin.andrew1@gmail.com" }];
+        if (
+          !row[0] ||
+          row[0] === "" ||
+          !row[1] ||
+          row[1] === "" ||
+          !row[11] ||
+          !row[15]
+        ) {
+          continue;
         }
+      }
 
-        await pleaseExplainMail(owner[0].email, errors, row[9], organization);
-        continue;
+      if (
+        range !== "ДОСТАВЛЕНІ -готові вироби !A2:V" ||
+        range !== "готово!A2:V"
+      ) {
+        if (
+          !row[0] ||
+          row[0] === "" ||
+          !row[1] ||
+          row[1] === "" ||
+          !row[11] ||
+          row[11] === "" ||
+          !row[15] ||
+          row[15] === ""
+        ) {
+          const criticalRows = [row[0], row[1], row[11], row[15]];
+          const fieldNames = [
+            "Группа товару",
+            "Розмір",
+            "Дата замовлення",
+            "Планова дата готовності",
+          ];
+          const errors = [];
+          criticalRows.forEach((el, index) => {
+            if (!el || el === "") {
+              errors.push(fieldNames[index]);
+            }
+          });
+          let owner = await User.find({ name: `${row[9]}` }).exec();
+          if (!owner || owner === undefined || owner.length < 1) {
+            owner = [{ email: "dyomin.andrew1@gmail.com" }];
+          }
+
+          await pleaseExplainMail(owner[0].email, errors, row[9], organization);
+          continue;
+        }
       }
 
       const date = new Date();
@@ -380,6 +411,137 @@ async function getAllOrders(req, res, next) {
   }
 }
 
+async function getArchivedOrders(req, res, next) {
+  const { access } = req.user.user;
+  const client = req.sheets.client;
+  const allOrdersArray = [];
+
+  if (access.demo) {
+    const spreadsheetId = process.env.DEMO_SHEET_LINK;
+    const range = "готово!A2:V";
+    const organization = "demo";
+    const orders = await getOrdersFromSheets(
+      client,
+      spreadsheetId,
+      range,
+      organization
+    );
+    if (orders && orders.length !== 0) {
+      allOrdersArray.push(...orders);
+    }
+  }
+
+  if (access.misazh) {
+    const spreadsheetId = process.env.MISAZH_SHEET_LINK;
+    const range = "готово!A2:V";
+    const organization = "misazh";
+    const orders = await getOrdersFromSheets(
+      client,
+      spreadsheetId,
+      range,
+      organization
+    );
+    if (orders && orders.length !== 0) {
+      allOrdersArray.push(...orders);
+    }
+  }
+
+  if (access.mebTown) {
+    const spreadsheetId = process.env.MEBTOWN_SHEET_LINK;
+    const range = "готово!A2:V";
+    const organization = "mebtown";
+    const orders = await getOrdersFromSheets(
+      client,
+      spreadsheetId,
+      range,
+      organization
+    );
+    if (orders && orders.length !== 0) {
+      allOrdersArray.push(...orders);
+    }
+  }
+
+  if (access.homeIs) {
+    const spreadsheetId = process.env.HOMEIS_SHEET_LINK;
+    const range = "готово!A2:V";
+    const organization = "homeis";
+    const orders = await getOrdersFromSheets(
+      client,
+      spreadsheetId,
+      range,
+      organization
+    );
+    if (orders && orders.length !== 0) {
+      allOrdersArray.push(...orders);
+    }
+  }
+
+  if (access.other) {
+    const spreadsheetId = process.env.OTHER_SHEET_LINK;
+    const range = "готово!A2:V";
+    const organization = "yura";
+    const orders = await getOrdersFromSheets(
+      client,
+      spreadsheetId,
+      range,
+      organization
+    );
+    if (orders && orders.length !== 0) {
+      allOrdersArray.push(...orders);
+    }
+  }
+
+  if (access.sweetHome) {
+    const spreadsheetId = process.env.SWEET_HOME_SHEET_LINK;
+    const range = "готово!A2:V";
+    const organization = "sweethome";
+    const orders = await getOrdersFromSheets(
+      client,
+      spreadsheetId,
+      range,
+      organization
+    );
+    if (orders && orders.length !== 0) {
+      allOrdersArray.push(...orders);
+    }
+  }
+
+  if (access.millini) {
+    const spreadsheetId = process.env.MILLINI_SHEET_LINK;
+    const range = "ДОСТАВЛЕНІ -готові вироби !A2:V";
+    const organization = "millini";
+    const orders = await getOrdersFromSheets(
+      client,
+      spreadsheetId,
+      range,
+      organization
+    );
+    if (orders && orders.length !== 0) {
+      allOrdersArray.push(...orders);
+    }
+  }
+
+  try {
+    if (!allOrdersArray.length) {
+      res.status(200).send({ message: "Orders not found" });
+    }
+
+    allOrdersArray.sort((a, b) => {
+      if (a.plannedDeadline > b.plannedDeadline) {
+        return 1;
+      }
+      if (a.plannedDeadline < b.plannedDeadline) {
+        return -1;
+      }
+      return 0;
+    });
+
+    res.status(200).json({ allOrdersArray });
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 async function addOrder(req, res, next) {
   const user = req.user.user;
   const today = new Date();
@@ -529,7 +691,7 @@ async function updateOrder(req, res, next) {
             owner = [{ email: "dyomin.andrew1@gmail.com" }];
           }
           const letterTitle = `Ваше замовлення №${number} готове`;
-          let letterHtml = '';
+          let letterHtml = "";
           if (!innerPrice || innerPrice === "") {
             letterHtml = `
             <h1>${number}</h1>
@@ -766,4 +928,5 @@ module.exports = {
   updateOrder,
   archiveOrder,
   deleteOrder,
+  getArchivedOrders,
 };
