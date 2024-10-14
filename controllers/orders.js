@@ -139,12 +139,8 @@ async function generatePdf(name, number, dateOfOrder, innerPrice) {
 }
 
 async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
-  
-  if (
-    range == "ДОСТАВЛЕНІ -готові вироби !A2:V" ||
-    range == "готово!A2:V"
-  ) {
-  console.log('Fetch ', organization, ' orders')
+  if (range == "ДОСТАВЛЕНІ -готові вироби !A2:V" || range == "готово!A2:V") {
+    console.log("Fetch ", organization, " orders");
   }
 
   try {
@@ -208,14 +204,16 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
               errors.push(fieldNames[index]);
             }
           });
-          if (errors.length > 2) {
-            continue;
-          }
+
           let owner = await User.find({ name: `${row[9]}` }).exec();
           if (!owner || owner === undefined || owner.length < 1) {
             owner = [{ email: "dyomin.andrew1@gmail.com" }];
           }
 
+          if (errors.length > 2) {
+            continue;
+          }
+          
           await pleaseExplainMail(owner[0].email, errors, row[9], organization);
           continue;
         }
