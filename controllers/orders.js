@@ -208,6 +208,9 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
               errors.push(fieldNames[index]);
             }
           });
+          if (errors.length > 2) {
+            continue;
+          }
           let owner = await User.find({ name: `${row[9]}` }).exec();
           if (!owner || owner === undefined || owner.length < 1) {
             owner = [{ email: "dyomin.andrew1@gmail.com" }];
