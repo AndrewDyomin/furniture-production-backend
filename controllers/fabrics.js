@@ -31,7 +31,6 @@ async function fetchFabrics(client, spreadsheetId) {
         const target = fabrics.find(item => item.title === sheet.title)
         target.array.push({name: fabric[0], price: fabric[1]})
       }
-      console.log(fetchSheet.data)
     }
 
     return fabrics;
