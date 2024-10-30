@@ -13,6 +13,7 @@ const modelsRoutes = require("./routes/api/models");
 const druftsRoutes = require("./routes/api/drufts");
 const leadsRoutes = require("./routes/api/leads");
 const fabricsRoutes = require("./routes/api/fabrics");
+const calcRoutes = require("./routes/api/calculations")
 const isAuth = require("./middlewares/isAuth");
 
 const app = express();
@@ -33,6 +34,7 @@ app.use("/models", modelsRoutes);
 app.use("/drufts", isAuth, druftsRoutes);
 app.use("/leads", leadsRoutes);
 app.use("/fabrics", fabricsRoutes);
+app.use("/calculations", calcRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Not found" });
