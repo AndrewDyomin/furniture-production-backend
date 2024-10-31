@@ -3,12 +3,12 @@ const mongoose = require("mongoose");
 const componentSchema = new mongoose.Schema({
   id: {
     type: String,
-    required: true
+    required: true,
   },
   quantity: {
     type: String,
-    required: true
-  }
+    required: true,
+  },
 });
 
 const collectionSchema = new mongoose.Schema({
@@ -17,20 +17,20 @@ const collectionSchema = new mongoose.Schema({
   },
   name: {
     type: String,
-    default: '',
+    default: "",
   },
   dimensions: {
-    width: { 
-        type: Number, 
-        required: true 
+    width: {
+      type: Number,
+      required: true,
     },
-    height: { 
-        type: Number, 
-        required: true 
+    height: {
+      type: Number,
+      required: true,
     },
-    depth: { 
-        type: Number, 
-        required: true 
+    depth: {
+      type: Number,
+      required: true,
     },
   },
   description: {
@@ -39,12 +39,32 @@ const collectionSchema = new mongoose.Schema({
   },
   basePrice: {
     type: Number,
-    required: true
+    required: true,
   },
-  images: [{
-    type: String,
-  }],
+  images: [
+    {
+      type: String,
+    },
+  ],
   components: [componentSchema],
+  costCalc: {
+    corner: {
+      type: Boolean,
+      default: false,
+    },
+    module: {
+      type: Boolean,
+      default: false,
+    },
+    drawstrings: {
+      type: Boolean,
+      default: false,
+    },
+    armrests: {
+      type: Boolean,
+      default: false,
+    },
+  },
 });
 
 module.exports = mongoose.model("Collection", collectionSchema);
