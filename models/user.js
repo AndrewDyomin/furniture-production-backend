@@ -21,8 +21,8 @@ const userSchema = new mongoose.Schema({
     default: "demo",
   },
   token: {
-    type: String,
-    default: null,
+    type: Array,
+    default: [''],
   },
   avatarURL: {
     type: String,

@@ -98,8 +98,6 @@ async function deleteUser(req, res, next) {
 
       const { _id } = req.body;
 
-      console.log(req.body)
-
       await User.findByIdAndDelete(_id).exec();
       
       return res.status(200).send({ message: 'User was deleted.' });

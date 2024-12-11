@@ -29,7 +29,7 @@ function isAuth(req, res, next) {
         return res.status(401).json({ "message": "Not authorized" });
       }
 
-      if (user.token !== token) {
+      if (!user.token.includes(String(token))) {
         return res.status(401).json({ "message": "Not authorized" });
       }
 

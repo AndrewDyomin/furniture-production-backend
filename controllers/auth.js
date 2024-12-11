@@ -31,10 +31,10 @@ async function register(req, res, next) {
     const token = jwt.sign(
       { id: user._id, name: user.name },
       process.env.JWT_SECRET,
-      { expiresIn: "1d" }
+      { expiresIn: "30d" }
     );
 
-    await User.findByIdAndUpdate(user._id, { token }).exec();
+    await User.findByIdAndUpdate(user._id, { token: [token] }).exec();
 
     res
       .status(201)
@@ -68,10 +68,16 @@ async function login(req, res, next) {
     const token = jwt.sign(
       { id: user._id, name: user.name },
       process.env.JWT_SECRET,
-      { expiresIn: "20d" }
+      { expiresIn: "30d" }
     );
 
-    await User.findByIdAndUpdate(user._id, { token }).exec();
+    if (user.token.length >= 2) {
+      const newTokens = [user.token[1], token];
+      await User.findByIdAndUpdate(user._id, { token: newTokens }).exec();
+    } else {
+      const newTokens = [user.token[0], token];
+      await User.findByIdAndUpdate(user._id, { token: newTokens }).exec();
+    }
 
     res
       .status(200)
@@ -85,7 +91,7 @@ async function logout(req, res, next) {
   try {
     const { _id } = req.user.user;
 
-    await User.findByIdAndUpdate(_id, { token: null }).exec();
+    await User.findByIdAndUpdate(_id, { token: [''] }).exec();
 
     res.status(204).end();
   } catch (error) {
