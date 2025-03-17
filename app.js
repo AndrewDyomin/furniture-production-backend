@@ -3,6 +3,7 @@ const logger = require("morgan");
 const cors = require("cors");
 const path = require("node:path");
 require("./db");
+require("./helpers/scheduledActions")
 
 const ordersRouter = require("./routes/api/orders");
 const authRoutes = require("./routes/api/auth");

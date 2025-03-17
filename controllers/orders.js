@@ -2,6 +2,7 @@ const { v4: uuidv4 } = require("uuid");
 require("dotenv").config();
 const Order = require("../models/order");
 const User = require("../models/user");
+const WeeklyReport = require("../models/weeklyReport");
 const updateSheets = require("../helpers/updateSheets");
 const { google } = require("googleapis");
 const sendMail = require("../helpers/sendMail");
@@ -626,7 +627,7 @@ async function updateOrder(req, res, next) {
   try {
     const client = req.sheets.client;
     const sheets = google.sheets({ version: "v4", auth: client });
-    const {
+    let {
       group,
       size,
       name,
@@ -713,6 +714,17 @@ async function updateOrder(req, res, next) {
             `;
           }
 
+          orderStatus = JSON.stringify({user: req.user.user._id, status: 'TRUE', date: new Date()})
+
+          const wReport = await WeeklyReport.findOne().exec();
+
+          const target = wReport.ordersArray.find(order => order._id === _id)
+
+          if (!target) {
+            const newReport = [ ...wReport.ordersArray, { _id, name, dealer, innerPrice, number, orderStatus } ];
+            await WeeklyReport.findByIdAndUpdate(wReport._id, { ordersArray: newReport })
+          }
+          
           await generatePdf(name, number, dateOfOrder, innerPrice);
 
           await sendMail(owner[0].email, letterTitle, letterHtml, number, name);
