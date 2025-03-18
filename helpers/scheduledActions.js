@@ -9,20 +9,22 @@ async function reportMail(wReport, totalCost, noCostOrders, orderStatusMark) {
 
     const letterTitle = `Отчет за неделю`;
     const letterHtml = `
-        <h3>Добрый день</h3>
-        <p>На этой неделе мы сделали ${wReport.ordersArray.length} заказ(ов).</p>
-        <p>Сумма оборота составляет ${totalCost} грн.</p>
+        <div style="display: flex; flex-direction: column; align-items: center;">
+        <h3 style="margin: 0px;">Добрый день</h3>
+        <p style="margin: 0px; margin-top: 20px;">На этой неделе мы сделали ${wReport.ordersArray.length} заказ(ов).</p>
+        <p style="margin: 0px;">Сумма оборота составляет ${totalCost} грн.</p>
         ${noCostOrders.length !== 0 ? `
-            <p>Заказы без цены:</p>
-            ${noCostOrders.map(order => `<p>${order.name} №${order.number} заказчик: ${order.dealer}</p>`).join('')}
+            <p style="margin: 0px; margin-top: 20px;">Заказы без цены:</p>
+            ${noCostOrders.map(order => `<p style="margin: 0px;">${order.name} №${order.number} заказчик: ${order.dealer}</p>`).join('')}
         ` : ''}
-        <p>Статистика "Заказ готов":</p>
+        <p style="margin: 0px; margin-top: 20px;">Статистика "Заказ готов":</p>
         ${orderStatusMark.map(obj => `
-            <p>${obj.user?.name || 'Неизвестный пользователь'}</p>
-            <div>
-                ${obj.orders.map(order => `<p>№${order.number} : ${order.name}</p>`).join('')}
+            <p style="margin: 0px; margin-top: 20px; text-align: left;">${obj.user?.name}</p>
+            <div style="margin: 0px;">
+                ${obj.orders.map(order => `<p style="margin: 0px;">№${order.number} : ${order.name}</p>`).join('')}
             </div>
         `).join('')}
+        </div>
     `;
 
     const addresses = 'misazh.ua@gmail.com';
