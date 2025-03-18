@@ -1,5 +1,58 @@
 const cron = require("node-cron");
 const weeklyReport = require("../models/weeklyReport");
+const User = require("../models/user");
+const nodemailer = require("nodemailer");
+require("dotenv").config();
+
+async function reportMail(wReport, totalCost, noCostOrders, orderStatusMark) {
+  try {
+
+    const letterTitle = `Отчет за неделю`;
+    const letterHtml = `
+        <h3>Добрый день</h3>
+        <p>На этой неделе мы сделали ${wReport.ordersArray.length} заказ(ов).</p>
+        <p>Сумма оборота составляет ${totalCost} грн.</p>
+        ${noCostOrders.length !== 0 ? `
+            <p>Заказы без цены:</p>
+            ${noCostOrders.map(order => `<p>${order.name} №${order.number} заказчик: ${order.dealer}</p>`).join('')}
+        ` : ''}
+        <p>Статистика "Заказ готов":</p>
+        ${orderStatusMark.map(obj => `
+            <p>${obj.user?.name || 'Неизвестный пользователь'}</p>
+            <div>
+                ${obj.orders.map(order => `<p>№${order.number} : ${order.name}</p>`).join('')}
+            </div>
+        `).join('')}
+    `;
+
+    const addresses = 'misazh.ua@gmail.com';
+
+    const config = {
+      host: "smtp.meta.ua",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "misazh.bot@meta.ua",
+        pass: process.env.PASSWORD,
+      },
+    };
+
+    const transporter = nodemailer.createTransport(config);
+    const emailOptions = {
+      from: "misazh.bot@meta.ua",
+      to: addresses,
+      subject: `${letterTitle}`,
+      html: `${letterHtml}`,
+    };
+
+    transporter
+      .sendMail(emailOptions)
+      .then(() => {console.log(`Letter to ${addresses} sended`)})
+      .catch((err) => console.log(err));
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 const format = (number) => {
     if (number < 10) {
@@ -9,12 +62,26 @@ const format = (number) => {
     }
 }
 
+const getUser = async (id) => {
+    const user = await User.findById(id).exec()
+    return user;
+}
+
 const report = async () => {
     try {
         const wReport = await weeklyReport.findOne().exec();
 
         let totalCost = 0;
         let noCostOrders = [];
+        const users = await Promise.all(
+            wReport.ordersArray.map(order => getUser(JSON.parse(order.orderStatus).user))
+        );
+        let orderStatusMark = [];
+
+        users.forEach(user => {
+            if (!orderStatusMark.some(obj => obj.user.id == user._id)) {
+                orderStatusMark.push({ user: { name: user.name, id: String(user._id)}, orders: [] })
+            }});
 
         wReport.ordersArray.forEach(order => {
             if (order.innerPrice) {
@@ -23,20 +90,24 @@ const report = async () => {
             if (!order.innerPrice) {
                 noCostOrders.push(order);
             }
-        })
-        
-        console.log('Недельный отчёт:')
-        console.log('На этой неделе мы сделали', wReport.ordersArray.length, 'заказов.')
-        console.log('Сумма оборота составляет', totalCost, 'грн.')
 
-        if (noCostOrders.length !== 0) {
-           console.log('Заказы без цены:')
-            noCostOrders.forEach(order => {
-                console.log(order.name, `№${order.number}`, ' заказчик:', order.dealer);
-            }) 
-        }
-        
-        // if its ok
+            const executorId = JSON.parse(order.orderStatus).user;
+            const filter = orderStatusMark.filter(user => user.user.id !== executorId)
+            let target = orderStatusMark.find(user => user.user.id === executorId)
+            target.orders = [ ...target.orders, { number: order.number, name: order.name } ]
+
+            orderStatusMark = [ ...filter, target ];
+        })
+
+        reportMail(wReport, totalCost, noCostOrders, orderStatusMark);
+    } catch(err) {
+        console.log(err)
+    }
+}
+
+const clearReport = async () => {
+    try {
+        const wReport = await weeklyReport.findOne().exec();
         await weeklyReport.findByIdAndUpdate(wReport._id, { ordersArray: [] })
     } catch(err) {
         console.log(err)
@@ -51,7 +122,9 @@ cron.schedule("0 17 * * 5", () => {
     const minutes = format(now.getMinutes())
     const seconds = format(now.getSeconds())
   console.log(`Scheduled function triggered at ${today}.${month} ${hours}:${minutes}:${seconds}.`);
-  // There is body of function
+  
+  report();
+  clearReport();
 }, {
   scheduled: true,
   timezone: "Europe/Kiev"
