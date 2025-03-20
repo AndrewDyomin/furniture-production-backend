@@ -9,7 +9,7 @@ async function reportMail(wReport, totalCost, noCostOrders, orderStatusMark) {
 
     const letterTitle = `Отчет за неделю`;
     const letterHtml = `
-        <div style="display: flex; flex-direction: column; align-items: center;">
+        <div>
         <h3 style="margin: 0px;">Добрый день</h3>
         <p style="margin: 0px; margin-top: 20px;">На этой неделе мы сделали ${wReport.ordersArray.length} заказ(ов).</p>
         <p style="margin: 0px;">Сумма оборота составляет ${totalCost} грн.</p>
