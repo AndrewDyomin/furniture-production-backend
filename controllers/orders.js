@@ -671,6 +671,9 @@ async function updateOrder(req, res, next) {
     } else if (organization === "sweethome") {
       spreadsheetId = process.env.SWEET_HOME_SHEET_LINK;
       range = "Лист1!A2:V";
+    } else if (organization === "demo") {
+      spreadsheetId = process.env.DEMO_SHEET_LINK;
+      range = "Лист1!A2:V";
     } else if (organization === "millini") {
       spreadsheetId = process.env.MILLINI_SHEET_LINK;
       range = "замовлення !A2:V";
