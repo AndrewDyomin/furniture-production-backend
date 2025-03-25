@@ -690,7 +690,7 @@ async function updateOrder(req, res, next) {
       const order = orders[index];
       if (order._id === _id) {
         row = `${range.slice(0, range.indexOf("!"))}!A${index + 2}:V`;
-        if (order.orderStatus !== "TRUE" && orderStatus === "TRUE") {
+        if (order.orderStatus !== "TRUE" && orderStatus !== "") {
           let owner = await User.find({ name: `${dealer}` }).exec();
           if (!owner || owner === undefined || owner.length < 1) {
             owner = [{ email: "dyomin.andrew1@gmail.com" }];
@@ -717,7 +717,7 @@ async function updateOrder(req, res, next) {
             `;
           }
 
-          orderStatus = JSON.stringify({user: req.user.user._id, status: 'TRUE', date: new Date()})
+          orderStatus = JSON.stringify({ user: req.user.user._id, status: 'TRUE', date: new Date() })
 
           const wReport = await WeeklyReport.findOne().exec();
 
