@@ -214,7 +214,7 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
           if (errors.length > 2) {
             continue;
           }
-          
+
           await pleaseExplainMail(owner[0].email, errors, row[9], organization);
           continue;
         }
@@ -690,7 +690,7 @@ async function updateOrder(req, res, next) {
       const order = orders[index];
       if (order._id === _id) {
         row = `${range.slice(0, range.indexOf("!"))}!A${index + 2}:V`;
-        if (order.orderStatus !== "TRUE" && orderStatus !== "") {
+        if (order.orderStatus !== "TRUE" && orderStatus === "TRUE") {
           let owner = await User.find({ name: `${dealer}` }).exec();
           if (!owner || owner === undefined || owner.length < 1) {
             owner = [{ email: "dyomin.andrew1@gmail.com" }];
@@ -717,17 +717,21 @@ async function updateOrder(req, res, next) {
             `;
           }
 
-          orderStatus = JSON.stringify({ user: req.user.user._id, status: 'TRUE', date: new Date() })
+          orderStatus = JSON.stringify({
+            user: req.user.user._id,
+            status: "TRUE",
+            date: new Date(),
+          });
 
           const wReport = await WeeklyReport.findOne().exec();
 
           const target = wReport.ordersArray.find(order => order._id === _id)
 
           if (!target) {
-            const newReport = [ ...wReport.ordersArray, { _id, name, dealer, innerPrice, number, orderStatus } ];
-            await WeeklyReport.findByIdAndUpdate(wReport._id, { ordersArray: newReport })
+            const newReport = [...wReport.ordersArray, { _id, name, dealer, innerPrice: parseFloat(innerPrice.replace(',', '.')), number, orderStatus }];
+            await WeeklyReport.findByIdAndUpdate(wReport._id.toString(), { ordersArray: newReport });
           }
-          
+
           await generatePdf(name, number, dateOfOrder, innerPrice);
 
           await sendMail(owner[0].email, letterTitle, letterHtml, number, name);
