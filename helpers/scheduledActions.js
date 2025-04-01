@@ -132,7 +132,7 @@ cron.schedule("0 17 * * 5", () => {
   timezone: "Europe/Kiev"
 });
 
-cron.schedule("*/4 * * * *", () => {
+cron.schedule("*/5 * * * *", () => {
     const now = new Date();
     const today = format(now.getDate())
     const month = format(now.getMonth() + 1)
