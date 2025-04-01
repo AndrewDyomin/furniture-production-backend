@@ -62,7 +62,7 @@ async function send(req, res, next) {
           `;
     }
 
-    const addresses = "dyomin.andrew1@gmail.com";
+    const addresses = "misazh.ua@gmail.com";
 
     const config = {
       host: "smtp.meta.ua",

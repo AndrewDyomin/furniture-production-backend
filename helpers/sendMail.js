@@ -4,7 +4,7 @@ const fs = require("node:fs")
 
 async function sendMail(recipient, letterTitle, letterHtml, number, name) {
   try {
-    const addresses = recipient === 'dyomin.andrew1@gmail.com' ? `${recipient}` : `${recipient}, dyomin.andrew1@gmail.com`
+    const addresses = recipient === 'misazh.ua@gmail.com' ? `${recipient}` : `${recipient}, misazh.ua@gmail.com`
     const config = {
       host: "smtp.meta.ua",
       port: 465,

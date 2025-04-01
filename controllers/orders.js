@@ -208,7 +208,7 @@ async function getOrdersFromSheets(client, spreadsheetId, range, organization) {
 
           let owner = await User.find({ name: `${row[9]}` }).exec();
           if (!owner || owner === undefined || owner.length < 1) {
-            owner = [{ email: "dyomin.andrew1@gmail.com" }];
+            owner = [{ email: "misazh.ua@gmail.com" }];
           }
 
           if (errors.length > 2) {
@@ -693,7 +693,7 @@ async function updateOrder(req, res, next) {
         if (order.orderStatus !== "TRUE" && orderStatus === "TRUE") {
           let owner = await User.find({ name: `${dealer}` }).exec();
           if (!owner || owner === undefined || owner.length < 1) {
-            owner = [{ email: "dyomin.andrew1@gmail.com" }];
+            owner = [{ email: "misazh.ua@gmail.com" }];
           }
           const letterTitle = `Ваше замовлення №${number} готове`;
           let letterHtml = "";

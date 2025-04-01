@@ -31,7 +31,7 @@ async function pleaseExplainMail(recipient, errors, dealer, organization) {
             <p>Источник: ${organization}</p>
             <p>Помогите мне пожалуйста</p>
             `;
-    const addresses = recipient === 'dyomin.andrew1@gmail.com' ? `${recipient}` : `${recipient}, dyomin.andrew1@gmail.com`;
+    const addresses = recipient === 'misazh.ua@gmail.com' ? `${recipient}` : `${recipient}, misazh.ua@gmail.com`;
 
     const config = {
       host: "smtp.meta.ua",

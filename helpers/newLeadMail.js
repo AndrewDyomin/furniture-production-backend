@@ -20,7 +20,7 @@ async function newLeadMail(lead) {
             <a href='https://myagkof-furniture.vercel.app/leads'>Заявки</a>
             `;
 
-    const addresses = 'dyomin.andrew1@gmail.com';
+    const addresses = 'misazh.ua@gmail.com';
 
     const config = {
       host: "smtp.meta.ua",
