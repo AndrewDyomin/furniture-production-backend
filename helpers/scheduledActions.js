@@ -132,17 +132,15 @@ cron.schedule("0 17 * * 5", () => {
   timezone: "Europe/Kiev"
 });
 
-// cron.schedule("* * * * *", () => {
-//     const now = new Date();
-//     const today = format(now.getDate())
-//     const month = format(now.getMonth() + 1)
-//     const hours = format(now.getHours())
-//     const minutes = format(now.getMinutes())
-//     const seconds = format(now.getSeconds())
-//     console.log(`Scheduled function triggered at ${today}.${month} ${hours}:${minutes}:${seconds}.`);
-//     // There is body of function
-//     report();
-//   }, {
-//     scheduled: true,
-//     timezone: "Europe/Kiev"
-//   });
+cron.schedule("*/4 * * * *", () => {
+    const now = new Date();
+    const today = format(now.getDate())
+    const month = format(now.getMonth() + 1)
+    const hours = format(now.getHours())
+    const minutes = format(now.getMinutes())
+    const seconds = format(now.getSeconds())
+    console.log(`${hours}:${minutes} Dont sleep!`);
+  }, {
+    scheduled: true,
+    timezone: "Europe/Kiev"
+  });
